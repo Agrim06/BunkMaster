@@ -31,20 +31,41 @@ const Dashboard = () =>{
       setLoading(false);
     });
 }, []);
+  
+  if (loading) {
     return (
-        <div className="dashboard">
-            <h1 className="dashboard-title">Attendance Overview</h1>
+      <div className="dashboard">
+        <p>Loading attendance summary...</p>
+      </div>
+    );
+  }
 
-            <div className="attendance-grid">
-                {summary.map((subject) => (
-                <AttendanceCard
-                    key={subject.subject_id}
-                    subject={subject}
-                />
-                ))}
-            </div>
+  if (error) {
+    return (
+      <div className="dashboard">
+        <p style={{ color: "red" }}>{error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="dashboard">
+      <h1 className="dashboard-title">Attendance Overview</h1>
+
+      {summary.length === 0 ? (
+        <p>No attendance data available. Add subjects to get started.</p>
+      ) : (
+        <div className="attendance-grid">
+          {summary.map((subject) => (
+            <AttendanceCard
+              key={subject.subject_id}
+              subject={subject}
+            />
+          ))}
         </div>
-         );
-    };
+      )}
+    </div>
+  );
+};
 
-    export default Dashboard;
+export default Dashboard;

@@ -18,6 +18,7 @@ const Login = () => {
             localStorage.setItem("token", data.access_token);
             navigate("/");
         } catch (err) {
+            console.error(err);
             setError("Invalid credentials please try again!");
         }
     };

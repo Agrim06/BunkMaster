@@ -52,6 +52,6 @@ def get_subjects(current_user: dict = Depends(get_current_user)):
             "id": str(s["_id"]),
             "name": s["name"],
             "classes_per_week": s["classes_per_week"],
-            "days": s["days"]
+            "days": s.get("days", [])
         })
     return result

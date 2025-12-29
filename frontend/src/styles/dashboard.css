@@ -72,3 +72,12 @@
   background-color: #fee2e2;
   color: #991b1b;
 }
+
+.dashboard {
+  min-height: 70vh;
+}
+
+.dashboard p {
+  font-size: 14px;
+  color: #4b5563;
+}

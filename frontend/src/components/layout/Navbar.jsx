@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
     const handleLayout = () =>{
@@ -8,10 +9,14 @@ const Navbar = () => {
 return (
     <nav className="navbar">
         <h2 className="navbar-title">BunkMaster</h2>
-        <button className="navbar-layout" onClick={handleLayout} > Logout </button>
+      <div>
+        <Link to="/" style={{ marginRight: "12px" }}>Dashboard</Link>
+        <Link to="/subjects" style={{ marginRight: "12px" }}>Subjects</Link>
+        <button onClick={handleLogout}>Logout</button>
+      </div>
     </nav>
-)   
-
+  );
 };
+
 
 export default Navbar;
