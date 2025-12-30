@@ -13,3 +13,4 @@ export const markAttendance = async (subjectId, attended) => {
     });
     return response.data;
 }
+

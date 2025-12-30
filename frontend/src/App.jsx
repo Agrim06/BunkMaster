@@ -1,10 +1,12 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import Subjects from "./pages/Subjects";
+import Navbar from "./components/layout/Navbar";
 
 function App() {
   return (
@@ -13,13 +15,16 @@ function App() {
 
         {/* Public route */}
         <Route path="/login" element={<Login />} />
-
+        <Route path="/register" element={<Register />} /> 
         {/* Protected route */}
         <Route
           path="/"
           element={
             <ProtectedRoute>
+              <Navbar />
+              <div className="layout">
               <Dashboard />
+              </div>
             </ProtectedRoute>
           }
         />
@@ -27,12 +32,13 @@ function App() {
           path="/subjects"
           element={
             <ProtectedRoute>
- 
-                <Subjects />
-      
+              <Navbar />
+              <div className="layout">
+              <Subjects />
+              </div>
             </ProtectedRoute>
-    }
-  />
+          }
+        />
 
       </Routes>
     </BrowserRouter>
@@ -41,22 +47,4 @@ function App() {
 
 export default App;
 
-// function App() {
-//   return (
-//     <BrowserRouter>
-//       <Routes>
-//         <Route path="/login" element={<Login />} />
-//         <Route
-//           path="/"
-//           element={
-//             <ProtectedRoute>
-//               <Dashboard />
-//             </ProtectedRoute>
-//           }
-//         />
-//       </Routes>
-//     </BrowserRouter>
-//   );
-// }
 
-// export default App;

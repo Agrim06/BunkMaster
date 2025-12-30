@@ -1,39 +1,76 @@
+import { markAttendance } from "../../api/attendance.api";
 
-const AttendanceCard = ({ subject }) =>{
-    let status = "SAFE";
-    let statusClass = "status-safe";
+const AttendanceCard = ({ subject, onUpdate }) => {
 
-    if(subject.attendance_percentage < 75){
-        status = "SHORTAGE";
-        statusClass = "status-danger";
-    }else if(subject.safe_bunk === 0){
-        status = "BORDERLINE";
-        statusClass = "status-warning"
-    }
+    // Helper for Status Colors
+    const getStatusInfo = (status) => {
+        switch (status) {
+            case "SAFE": return { class: "status-safe", icon: "🟢" };
+            case "BORDERLINE": return { class: "status-warning", icon: "⚠️" };
+            case "SHORTAGE": return { class: "status-danger", icon: "🚨" };
+            default: return { class: "status-safe", icon: "•" };
+        }
+    };
 
+    const statusInfo = getStatusInfo(subject.status);
 
-    return(
+    const handleAttendance = async (status) => {
+        try {
+            await markAttendance(subject.subject_id, status);
+            if (onUpdate) onUpdate(); // Refresh data after update
+        } catch (error) {
+            console.error("Error marking attendance:", error);
+        }
+    };
+
+    return (
         <div className="attendance-card">
-            <h3 className="attendance-title">{subject.subject_name}</h3>
-
-            <div className="attendance-stats">
-                <span>Attended: {subject.attendance_count}</span>
-                <span>Missed: {subject.missed_count}</span>
+            <div className="card-header">
+                <div>
+                    <h3 className="subject-name">{subject.subject_name}</h3>
+                    <div className="percent-label">Target: {subject.min_attendance || 75}%</div>
+                </div>
+                <div className={`status-badge ${statusInfo.class}`}>
+                    {statusInfo.icon} {subject.status}
+                </div>
             </div>
 
-            <div className="attendance-percentage">
-                {subject.attendance_percentage}%
+            <div className="percentage-display">
+                <div className="big-percent">{subject.attendance_percentage}%</div>
+                <div className="attendance-bunk">
+                    {subject.safe_bunk > 0 ? (
+                        <span style={{ color: "var(--success)" }}>You can bunk <strong>{subject.safe_bunk}</strong> classes</span>
+                    ) : (
+                        <span style={{ color: "var(--danger)" }}>Don't miss any more classes!</span>
+                    )}
+                </div>
             </div>
 
-            <div className="attendance-bunk">
-                Safe bunks left: <strong>{subject.safe_bunk}</strong>
+            <div className="stats-row">
+                <div className="stat-item">
+                    <span>Attended</span>
+                    <span className="stat-value">{subject.attended_count}</span>
+                </div>
+                <div className="stat-item">
+                    <span>Missed</span>
+                    <span className="stat-value">{subject.missed_count}</span>
+                </div>
+                <div className="stat-item">
+                    <span>Total</span>
+                    <span className="stat-value">{subject.attended_count + subject.missed_count}</span>
+                </div>
             </div>
 
-            <div className={`attendance-status ${statusClass}`}>
-                {status}
+            <div className="action-buttons">
+                <button className="btn-attend" onClick={() => handleAttendance("PRESENT")}>
+                    ✅ Present
+                </button>
+                <button className="btn-miss" onClick={() => handleAttendance("ABSENT")}>
+                    ❌ Absent
+                </button>
             </div>
         </div>
-        );
-    };
+    );
+};
 
 export default AttendanceCard;

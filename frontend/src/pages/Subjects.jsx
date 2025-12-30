@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSubjects, addSubject } from "../api/subject.api"
+import "../styles/subjects.css"
 
 const Subjects = () => {
     const [subjects, setSubjects] = useState([]);
@@ -50,10 +51,11 @@ const Subjects = () => {
     };
 
     return (
-        <div>
-            <h1>Subjects</h1>
+        <div className="subjects-container">
+            <h1 className="subjects-title">Manage your subjects</h1>
 
-            <form onSubmit={handleAddSubject}>
+            <form onSubmit={handleAddSubject} className="add-subject-form">
+                <div className="form-group">
                 <input
                     type="text"
                     placeholder="Subject name"
@@ -79,7 +81,7 @@ const Subjects = () => {
                     }
                     required
                 />
-
+                </div>  
                 <button type="submit">Add Subject</button>
             </form>
 
@@ -89,9 +91,9 @@ const Subjects = () => {
             {loading ? (
                 <p>Loading subjects...</p>
             ) : (
-                <ul>
+                <ul className="subjects-list">
                     {subjects.map((s) => (
-                        <li key={s._id || s.id}>{s.name}</li>
+                        <li key={s._id || s.id} className="subject-item">{s.name}</li>
                     ))}
                 </ul>
             )}

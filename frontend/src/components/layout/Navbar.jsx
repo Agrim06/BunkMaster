@@ -1,22 +1,43 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import "../../styles/layout.css"
 
 const Navbar = () => {
-    const handleLayout = () =>{
-        localStorage.removeItem("token");
-        window.location.href("/login");
-    }
+  const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem("token");
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  }
 
-return (
+  return (
     <nav className="navbar">
-        <h2 className="navbar-title">BunkMaster</h2>
-      <div>
-        <Link to="/" style={{ marginRight: "12px" }}>Dashboard</Link>
-        <Link to="/subjects" style={{ marginRight: "12px" }}>Subjects</Link>
-        <button onClick={handleLogout}>Logout</button>
+      <div className="navbar-logo">
+        🎓 BunkTracker
+      </div>
+      <div className="navbar-links">
+        {isLoggedIn ? (
+          <>
+            <Link to="/" className="nav-link">Dashboard</Link>
+            <Link to="/subjects" className="nav-link">Subjects</Link>
+            <button onClick={handleLogout} className="logout-btn">
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className="nav-link">Login</Link>
+            <Link to="/register" className="nav-link" style={{
+              background: "var(--primary)",
+              color: "white",
+              padding: "8px 16px",
+              borderRadius: "8px"
+            }}>
+              Sign Up
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );
 };
-
-
 export default Navbar;
