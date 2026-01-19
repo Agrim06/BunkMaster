@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api/auth.api"
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../api/auth.api";
+import "../styles/auth.css";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -14,44 +15,50 @@ const Login = () => {
 
         try {
             const data = await loginUser({ email, password });
-
             localStorage.setItem("token", data.access_token);
             navigate("/");
         } catch (err) {
             console.error(err);
-            setError("Invalid credentials please try again!");
+            setError(err.response?.data?.detail || "Invalid credentials, please try again!");
         }
     };
 
     return (
-        <div style={{ maxWidth: "400px", margin: "100px auto" }}>
-            <h2>Login</h2>
+        <div className="auth-container">
+            <div className="auth-card">
+                <h2 className="auth-title">Welcome Back</h2>
+                <p className="auth-subtitle">Log in to manage your attendance</p>
 
-            <form onSubmit={handleLogin}>
-                <input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
+                <form className="auth-form" onSubmit={handleLogin}>
+                    <input
+                        className="auth-input"
+                        type="email"
+                        placeholder="Email Address"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <input
+                        className="auth-input"
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
 
-                <br />
+                    {error && <p style={{ color: "var(--danger)", textAlign: "center", fontSize: "14px" }}>{error}</p>}
 
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
+                    <button className="auth-button" type="submit">
+                        Log In
+                    </button>
+                </form>
 
-                <br />
-
-                {error && <p style={{ color: "red" }}>{error}</p>}
-
-                <button type="submit">Submit</button>
-            </form>
+                <div className="auth-link">
+                    Don't have an account?
+                    <Link to="/register">Sign Up</Link>
+                </div>
+            </div>
         </div>
     );
 };

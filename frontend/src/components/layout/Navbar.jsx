@@ -26,12 +26,7 @@ const Navbar = () => {
         ) : (
           <>
             <Link to="/login" className="nav-link">Login</Link>
-            <Link to="/register" className="nav-link" style={{
-              background: "var(--primary)",
-              color: "white",
-              padding: "8px 16px",
-              borderRadius: "8px"
-            }}>
+            <Link to="/register" className="nav-btn-primary">
               Sign Up
             </Link>
           </>

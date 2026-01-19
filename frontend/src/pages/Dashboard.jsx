@@ -9,9 +9,7 @@ const Dashboard = () => {
   const [error, setError] = useState("");
 
   const loadAttendance = () => {
-    // Keep loading state mostly silent for refreshes, or handle it delicately
-    // But for initial load we want a spinner.
-    // simpler to just call getAttendanceSummary()
+
     getAttendanceSummary()
       .then((data) => {
         if (Array.isArray(data)) {

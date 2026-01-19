@@ -26,6 +26,7 @@ def add_subject(
         "user_id"  : current_user["id"],
         "name" : subject.name,
         "classes_per_week" : subject.classes_per_week,
+        "days": subject.days,
         "created_at" : datetime.utcnow(),
         "is_active" : True
     }

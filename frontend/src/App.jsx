@@ -15,7 +15,7 @@ function App() {
 
         {/* Public route */}
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} /> 
+        <Route path="/register" element={<Register />} />
         {/* Protected route */}
         <Route
           path="/"
@@ -23,7 +23,7 @@ function App() {
             <ProtectedRoute>
               <Navbar />
               <div className="layout">
-              <Dashboard />
+                <Dashboard />
               </div>
             </ProtectedRoute>
           }
@@ -34,7 +34,7 @@ function App() {
             <ProtectedRoute>
               <Navbar />
               <div className="layout">
-              <Subjects />
+                <Subjects />
               </div>
             </ProtectedRoute>
           }

@@ -3,50 +3,64 @@
 .dashboard-container {
   max-width: 1200px;
   margin: 0 auto;
-  animation: fadeIn 0.6s ease-out;
+  animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  padding: 0 20px;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dashboard-header {
-  margin-bottom: 32px;
+  margin-bottom: 40px;
   text-align: center;
+  position: relative;
 }
 
 .dashboard-title {
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 800;
-  background: linear-gradient(to right, #fff, #94a3b8);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--text-primary);
   margin-bottom: 8px;
-  letter-spacing: -1px;
+  letter-spacing: -0.5px;
+  text-shadow: 0 0 20px rgba(0, 242, 234, 0.1);
 }
 
 .dashboard-subtitle {
   color: var(--text-secondary);
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 400;
 }
 
 /* Grid Layout */
 .attendance-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
-  padding-bottom: 40px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  padding-bottom: 120px;
 }
 
 /* Glass Card */
 .attendance-card {
-  background: rgba(30, 41, 59, 0.4);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  padding: 24px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--bg-card);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border: var(--glass-border);
+  border-top: var(--glass-highlight);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--glass-shadow);
 }
 
 .attendance-card::before {
@@ -54,154 +68,214 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary), transparent);
-  opacity: 0.5;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--primary), transparent);
+  opacity: 0.8;
+  transition: width 0.3s ease;
 }
 
 .attendance-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-  border-color: rgba(99, 102, 241, 0.3);
-  background: rgba(30, 41, 59, 0.6);
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(20, 25, 35, 0.8);
+}
+
+.attendance-card:hover::before {
+  width: 6px;
+  box-shadow: 0 0 20px var(--primary-glow);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
-  align-items: start;
-  margin-bottom: 20px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-left: 12px;
 }
 
 .subject-name {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
 }
 
 .status-badge {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
   padding: 6px 12px;
-  border-radius: 9999px;
+  border-radius: 99px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  letter-spacing: 1px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-badge::before {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
 }
 
 .status-safe {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: rgba(0, 255, 157, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(0, 255, 157, 0.2);
 }
 
 .status-warning {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: rgba(255, 204, 0, 0.1);
+  color: var(--warning);
+  border: 1px solid rgba(255, 204, 0, 0.2);
 }
 
 .status-danger {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  animation: pulse 2s infinite;
+  background: rgba(255, 42, 109, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(255, 42, 109, 0.2);
+  animation: glowPulse 2s infinite;
 }
 
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+@keyframes glowPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 42, 109, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(255, 42, 109, 0.4);
+  }
 }
 
 .percentage-display {
   text-align: center;
-  margin: 16px 0;
-  padding: 16px;
-  background: rgba(15, 23, 42, 0.3);
-  border-radius: 16px;
+  margin: 20px 0;
+  padding: 24px;
+  background: rgba(11, 14, 20, 0.4);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  position: relative;
 }
 
 .big-percent {
-  font-size: 42px;
-  font-weight: 800;
+  font-size: 48px;
+  font-weight: 900;
   color: var(--text-primary);
   line-height: 1;
+  background: linear-gradient(135deg, #fff, var(--text-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.1));
 }
 
 .percent-label {
   font-size: 13px;
   color: var(--text-secondary);
-  margin-top: 4px;
+  font-weight: 500;
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.7;
 }
 
 .stats-row {
   display: flex;
   justify-content: space-between;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 24px;
+  padding: 16px 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .stat-value {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .action-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 16px;
+  margin-top: 24px;
 }
 
-.btn-attend, .btn-miss {
-  padding: 12px;
+.btn-attend,
+.btn-miss {
+  padding: 14px;
   border: none;
-  border-radius: 12px;
-  font-weight: 600;
+  border-radius: var(--radius-md);
+  font-weight: 700;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .btn-attend {
-  background: linear-gradient(135deg, var(--success), #059669);
-  color: white;
-  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+  background: rgba(0, 255, 157, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(0, 255, 157, 0.3);
+}
+
+.btn-attend:hover {
+  background: var(--success);
+  color: #000;
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+  transform: translateY(-2px);
 }
 
 .btn-miss {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 42, 109, 0.1);
   color: var(--danger);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(255, 42, 109, 0.3);
 }
 
-.btn-attend:active, .btn-miss:active {
-  transform: scale(0.95);
+.btn-miss:hover {
+  background: var(--danger);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(255, 42, 109, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-attend:active,
+.btn-miss:active {
+  transform: scale(0.96);
 }
 
 .bunk-msg {
   text-align: center;
   font-size: 13px;
-  margin-top: 16px;
-  padding: 8px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 204, 0, 0.05);
+  color: #FFE680;
+  border: 1px solid rgba(255, 204, 0, 0.1);
 }

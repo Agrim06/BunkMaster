@@ -56,7 +56,7 @@ const Register = () => {
                         required
                     />
                     <div>
-                        <label style={{ color: "var(--text-secondary)", fontSize: "14px", marginBottom: "8px", display: "block" }}>
+                        <label className="auth-label">
                             Minimum Attendance Goal: <strong style={{ color: "var(--primary)" }}>{minAttendance}%</strong>
                         </label>
                         <input
@@ -66,10 +66,10 @@ const Register = () => {
                             step="5"
                             value={minAttendance}
                             onChange={(e) => setMinAttendance(e.target.value)}
-                            style={{ width: "100%", accentColor: "var(--primary)" }}
+                            className="auth-range"
                         />
                     </div>
-                    {error && <p style={{ color: "var(--danger)", textAlign: "center", fontSize: "14px" }}>{error}</p>}
+                    {error && <div className="auth-error">⚠️ {error}</div>}
                     <button className="auth-button" type="submit">
                         Sign Up
                     </button>

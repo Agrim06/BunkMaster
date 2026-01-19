@@ -39,7 +39,7 @@ const AttendanceCard = ({ subject, onUpdate }) => {
                 <div className="big-percent">{subject.attendance_percentage}%</div>
                 <div className="attendance-bunk">
                     {subject.safe_bunk > 0 ? (
-                        <span style={{ color: "var(--success)" }}>You can bunk <strong>{subject.safe_bunk}</strong> classes</span>
+                        <span style={{ color: "var(--success)" }}>You can bunk <strong>{subject.safe_bunk}</strong> class(es)</span>
                     ) : (
                         <span style={{ color: "var(--danger)" }}>Don't miss any more classes!</span>
                     )}
@@ -62,10 +62,10 @@ const AttendanceCard = ({ subject, onUpdate }) => {
             </div>
 
             <div className="action-buttons">
-                <button className="btn-attend" onClick={() => handleAttendance("PRESENT")}>
+                <button className="btn-attend" onClick={() => handleAttendance(true)}>
                     ✅ Present
                 </button>
-                <button className="btn-miss" onClick={() => handleAttendance("ABSENT")}>
+                <button className="btn-miss" onClick={() => handleAttendance(false)}>
                     ❌ Absent
                 </button>
             </div>

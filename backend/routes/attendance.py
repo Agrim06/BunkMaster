@@ -22,9 +22,27 @@ def add_attendance(
     })
 
     if not attendance :
-        raise HTTPException(status_code=404 , detail="Attendance record not found")
+        # Verify if the subject exists for this user
+        subject_record = subjects_collection.find_one({
+             "_id": ObjectId(subject_id), 
+             "user_id": current_user["id"]
+        })
+        
+        if not subject_record:
+            raise HTTPException(status_code=404 , detail="Subject not found")
+
+        # If subject exists but attendance record is missing, create it (Self-Healing)
+        attendance = {
+            "user_id": current_user["id"],
+            "subject_id": subject_id,
+            "attended_count": 0,
+            "missed_count": 0,
+            "last_updated": datetime.utcnow()
+        }
+        result = attendance_collection.insert_one(attendance)
+        attendance["_id"] = result.inserted_id
     
-    update_field = "attendance_count" if data.attended else "missed_count"
+    update_field = "attended_count" if data.attended else "missed_count"
 
     attendance_collection.update_one(
         {"_id" : attendance["_id"]},
@@ -54,7 +72,7 @@ def attendance_summary( current_user: dict = Depends(get_current_user)):
     for s in subjects:
         attendance = attendance_collection.find_one({
             "user_id"  : current_user["id"],
-            "subject_id" : str(s["id"])
+            "subject_id" : str(s["_id"])
         })
 
         if not attendance:
