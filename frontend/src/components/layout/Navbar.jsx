@@ -11,9 +11,9 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <div className="navbar-logo">
-        🎓 BunkTracker
-      </div>
+      
+        <Link to="/" className="navbar-logo" style={{textDecoration: "none"}}>🎓 BunkMaster</Link>
+
       <div className="navbar-links">
         {isLoggedIn ? (
           <>

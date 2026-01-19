@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getSubjects, addSubject } from "../api/subject.api"
+import { getSubjects, addSubject, deleteSubject } from "../api/subject.api"
 import "../styles/subjects.css"
 
 const Subjects = () => {
@@ -8,6 +8,7 @@ const Subjects = () => {
     const [days, setDays] = useState([]);
     const [name, setName] = useState("");
     const [loading, setLoading] = useState(true);
+    const [minAttendance, setMinAttendance] = useState("");
 
     const loadSubjects = () => {
         getSubjects()
@@ -40,16 +41,30 @@ const Subjects = () => {
                 name,
                 classes_per_week: parseInt(classesPerWeek, 10),
                 days,
+                min_attendance: minAttendance ? parseInt(minAttendance, 10) : 75
             });
             setName("");
             setClassesPerWeek("");
             setDays([]);
             loadSubjects();
+            setMinAttendance("");
         } catch (error) {
             console.error("Error adding subject:", error);
         }
     };
 
+    const handleDeleteSubject= async(id)=>{
+        if (!window.confirm("Are you sure you want to delete this permanently?")) return;
+
+        try{
+            await deleteSubject(id);
+            setSubjects(subjects.filter((s)=>(s._id || s.id !== id)));
+        }catch(error){
+            console.error("Error deleting subject:", error);
+            alert("Error deleting subject!");
+        }
+
+    }
     return (
         <div className="subjects-container">
             <h1 className="subjects-title">Manage your subjects</h1>
@@ -81,6 +96,14 @@ const Subjects = () => {
                     }
                     required
                 />
+                <input
+                    type="number"
+                    placeholder="Minimum Attendance"
+                    value={minAttendance}
+                    onChange={(e) => setMinAttendance(e.target.value)}
+                    min="0"
+                    max="100"
+                />
                 </div>  
                 <button type="submit">Add Subject</button>
             </form>
@@ -93,7 +116,12 @@ const Subjects = () => {
             ) : (
                 <ul className="subjects-list">
                     {subjects.map((s) => (
-                        <li key={s._id || s.id} className="subject-item">{s.name}</li>
+                        <li key={s._id || s.id} className="subject-item">
+                            {s.name}
+                            <button onClick= {()=> handleDeleteSubject(s._id || s.id)} className="delete-btn">
+                                ❌
+                            </button>
+                        </li>
                     ))}
                 </ul>
             )}
@@ -102,3 +130,6 @@ const Subjects = () => {
 };
 
 export default Subjects;
+
+
+

@@ -1,8 +1,7 @@
 /* frontend/src/styles/layout.css */
 .layout {
   padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 100%;
   min-height: 100vh;
 }
 

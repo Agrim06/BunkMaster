@@ -49,9 +49,8 @@ body {
 }
 
 #root {
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 100%;
   min-height: 100vh;
-  padding-bottom: 90px;
+  padding-bottom: 20px;
   position: relative;
 }

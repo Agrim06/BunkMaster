@@ -27,6 +27,7 @@ def add_subject(
         "name" : subject.name,
         "classes_per_week" : subject.classes_per_week,
         "days": subject.days,
+        "min_attendance": subject.min_attendance,
         "created_at" : datetime.utcnow(),
         "is_active" : True
     }
@@ -56,3 +57,18 @@ def get_subjects(current_user: dict = Depends(get_current_user)):
             "days": s.get("days", [])
         })
     return result
+
+@router.delete("/{subject_id}")
+def delete_subject(
+    subject_id : str,
+    current_user : dict = Depends(get_current_user)   
+):
+    result = subjects_collection.delete_one({
+        "_id" : ObjectId(subject_id),
+        "user_id" : current_user["id"]
+    })
+
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404 , detail="Subject not found")
+
+    return {"message" : "Subject deleted successfully"}

@@ -85,14 +85,14 @@ def attendance_summary( current_user: dict = Depends(get_current_user)):
         total = attended + missed
         percentage = calculate_attendance_percentage(attended , total)
 
-        user_min_attendance = current_user.get("min_attendance", 75)
-        min_percentage_decimal = user_min_attendance / 100.0
+        target_attendance = s.get("min_attendance") or current_user.get("min_attendance", 75)
+        min_percentage_decimal = target_attendance / 100.0
 
         safe_bunk = calculate_safe_bunk(attended , total , min_percentage_decimal)
 
         status = "SAFE"
 
-        if percentage < user_min_attendance:
+        if percentage < target_attendance:
             status = "SHORTAGE"
         elif safe_bunk == 0:
             status = "BORDERLINE"
@@ -104,7 +104,8 @@ def attendance_summary( current_user: dict = Depends(get_current_user)):
             "missed_count": missed,
             "attendance_percentage": round(percentage) ,
             "safe_bunk" : safe_bunk  ,
-            "status" : status
+            "status" : status,
+            "min_attendance" : target_attendance
         })
 
     return summary
