@@ -1,8 +1,8 @@
+import { useState } from "react";
 import { markAttendance } from "../../api/attendance.api";
-
+import CalendarView from "./CalendarView"
 const AttendanceCard = ({ subject, onUpdate }) => {
 
-    // Helper for Status Colors
     const getStatusInfo = (status) => {
         switch (status) {
             case "SAFE": return { class: "status-safe", icon: "🟢" };
@@ -17,11 +17,13 @@ const AttendanceCard = ({ subject, onUpdate }) => {
     const handleAttendance = async (status) => {
         try {
             await markAttendance(subject.subject_id, status);
-            if (onUpdate) onUpdate(); // Refresh data after update
+            if (onUpdate) onUpdate();
         } catch (error) {
             console.error("Error marking attendance:", error);
         }
     };
+
+    const [showCalendar, setShowCalendar] = useState(false);
 
     return (
         <div className="attendance-card">
@@ -68,7 +70,17 @@ const AttendanceCard = ({ subject, onUpdate }) => {
                 <button className="btn-miss" onClick={() => handleAttendance(false)}>
                     ❌ Absent
                 </button>
+                <button className="btn-history" onClick={() => setShowCalendar(!showCalendar)}>
+                    {showCalendar ? "Hide Calendar" : "View History"}
+                </button>
             </div>
+            {showCalendar && (
+                <CalendarView
+                    subjectId={subject.subject_id}
+                    onClose={() => setShowCalendar(false)}
+                />
+            )}
+
         </div>
     );
 };

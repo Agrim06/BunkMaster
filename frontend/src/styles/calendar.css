@@ -1,0 +1,11 @@
+.calendar-container {
+    position: absolute;
+    top: 0%;
+    left: 0;
+    width: 100%;
+    z-index: 50;
+    margin-top: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    background: rgba(255, 255, 255, 0.773);
+    border-radius: 5px;
+}

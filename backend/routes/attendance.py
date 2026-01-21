@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime
 from bson import ObjectId
-
+from pymongo import DESCENDING
 from schemas.attendance import AttendanceUpdate
 from deps import get_current_user
 from services.attendance_service import (calculate_safe_bunk , calculate_attendance_percentage)
@@ -51,12 +51,13 @@ def add_attendance(
             "$set" : {"last_updated" : datetime.utcnow()}
         }
     )
+    timestamp = data.date if data.date else datetime.utcnow()
 
     log_entry = {
         "user_id" : current_user["id"],
         "subject_id" : subject_id,
         "attended" : data.attended,
-        "timestamp" : datetime.utcnow()
+        "timestamp" : timestamp
     }
 
     attendance_logs_collection.insert_one(log_entry)
@@ -109,3 +110,19 @@ def attendance_summary( current_user: dict = Depends(get_current_user)):
         })
 
     return summary
+
+@router.get("/history/{subject_id}")
+def get_attendance_history(
+    subject_id : str,
+    current_user : dict = Depends(get_current_user)
+):
+    history = attendance_logs_collection.find({
+        "user_id" : current_user["id"],
+        "subject_id" : subject_id,
+    }).sort("timestamp" , DESCENDING)
+
+    return[{
+        "date" : log["timestamp"],
+        "attended" : log["attended"],
+        "id" : str(log["_id"])
+    }for log in history]

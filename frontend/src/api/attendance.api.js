@@ -7,10 +7,11 @@ export const getAttendanceSummary = async () => {
 };
 
 //POST /attendance/{subject_id}
-export const markAttendance = async (subjectId, attended) => {
-    const response = await api.post(`/attendance/${subjectId}`, {
-        attended: attended,
-    });
+export const markAttendance = async (subjectId, attended , date = null) => {
+    const payload = { attended };
+    if( date ) payload.date = date;
+
+    const response = await api.post(`/attendance/${subjectId}`, payload);
     return response.data;
 }
 

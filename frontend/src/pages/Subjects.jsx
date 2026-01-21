@@ -53,13 +53,13 @@ const Subjects = () => {
         }
     };
 
-    const handleDeleteSubject= async(id)=>{
+    const handleDeleteSubject = async (id) => {
         if (!window.confirm("Are you sure you want to delete this permanently?")) return;
 
-        try{
+        try {
             await deleteSubject(id);
-            setSubjects(subjects.filter((s)=>(s._id || s.id !== id)));
-        }catch(error){
+            setSubjects(subjects.filter((s) => (s._id || s.id !== id)));
+        } catch (error) {
             console.error("Error deleting subject:", error);
             alert("Error deleting subject!");
         }
@@ -69,62 +69,61 @@ const Subjects = () => {
         <div className="subjects-container">
             <h1 className="subjects-title">Manage your subjects</h1>
 
-            <form onSubmit={handleAddSubject} className="add-subject-form">
-                <div className="form-group">
-                <input
-                    type="text"
-                    placeholder="Subject name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                />
+            <div className="subjects-content">
+                <form onSubmit={handleAddSubject} className="add-subject-form">
+                    <div className="form-group">
+                        <input
+                            type="text"
+                            placeholder="Subject name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                        />
 
-                <input
-                    type="number"
-                    placeholder="Classes per week"
-                    value={classesPerWeek}
-                    onChange={(e) => setClassesPerWeek(e.target.value)}
-                    min="1"
-                    required
-                />
+                        <input
+                            type="number"
+                            placeholder="Classes per week"
+                            value={classesPerWeek}
+                            onChange={(e) => setClassesPerWeek(e.target.value)}
+                            min="1"
+                            required
+                        />
 
-                <input
-                    type="text"
-                    placeholder="Days (comma separated, e.g. Mon,Wed,Fri)"
-                    onChange={(e) =>
-                        setDays(e.target.value.split(",").map((d) => d.trim()))
-                    }
-                    required
-                />
-                <input
-                    type="number"
-                    placeholder="Minimum Attendance"
-                    value={minAttendance}
-                    onChange={(e) => setMinAttendance(e.target.value)}
-                    min="0"
-                    max="100"
-                />
-                </div>  
-                <button type="submit">Add Subject</button>
-            </form>
+                        <input
+                            type="text"
+                            placeholder="Days (comma separated, e.g. Mon,Wed,Fri)"
+                            onChange={(e) =>
+                                setDays(e.target.value.split(",").map((d) => d.trim()))
+                            }
+                            required
+                        />
+                        <input
+                            type="number"
+                            placeholder="Minimum Attendance"
+                            value={minAttendance}
+                            onChange={(e) => setMinAttendance(e.target.value)}
+                            min="0"
+                            max="100"
+                        />
+                    </div>
+                    <button type="submit">Add Subject</button>
+                </form>
 
-
-            <hr />
-
-            {loading ? (
-                <p>Loading subjects...</p>
-            ) : (
-                <ul className="subjects-list">
-                    {subjects.map((s) => (
-                        <li key={s._id || s.id} className="subject-item">
-                            {s.name}
-                            <button onClick= {()=> handleDeleteSubject(s._id || s.id)} className="delete-btn">
-                                ❌
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            )}
+                {loading ? (
+                    <p>Loading subjects...</p>
+                ) : (
+                    <ul className="subjects-list">
+                        {subjects.map((s) => (
+                            <li key={s._id || s.id} className="subject-item">
+                                {s.name}
+                                <button onClick={() => handleDeleteSubject(s._id || s.id)} className="delete-btn">
+                                    ❌
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
         </div>
     );
 };

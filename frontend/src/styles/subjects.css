@@ -16,7 +16,16 @@
     text-shadow: 0 0 30px rgba(0, 242, 234, 0.1);
 }
 
+.subjects-content {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
 .add-subject-form {
+    flex: 1;
+    min-width: 300px;
     background: var(--bg-card);
     backdrop-filter: var(--backdrop-blur);
     -webkit-backdrop-filter: var(--backdrop-blur);
@@ -24,7 +33,6 @@
     border-top: var(--glass-highlight);
     padding: 32px;
     border-radius: var(--radius-lg);
-    margin-bottom: 40px;
     box-shadow: var(--glass-shadow);
     animation: slideUpFade 0.6s ease-out;
 }
@@ -86,10 +94,8 @@
 }
 
 .subjects-list {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
+    flex: 1;
+    min-width: 300px;
 }
 
 .subject-item {

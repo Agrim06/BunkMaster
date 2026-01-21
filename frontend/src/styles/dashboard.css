@@ -1,10 +1,7 @@
-/* frontend/src/styles/dashboard.css */
-
 .dashboard-container {
   max-width: 100%;
   animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
   padding: 0 40px;
-  /* Increased padding for better edge spacing on full width */
 }
 
 @keyframes slideUpFade {
@@ -46,6 +43,7 @@
   grid-template-columns: 1fr;
   gap: 24px;
   padding-bottom: 40px;
+  align-items: start;
 }
 
 @media (min-width: 850px) {
@@ -72,25 +70,12 @@
   /* Slightly reduced padding for more space */
   transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
-  overflow: hidden;
   box-shadow: var(--glass-shadow);
   display: flex;
   flex-direction: column;
-  height: 100%;
-  /* Ensure equal height in row */
 }
 
-.attendance-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  background: linear-gradient(180deg, var(--primary), transparent);
-  opacity: 0.8;
-  transition: width 0.3s ease;
-}
+
 
 .attendance-card:hover {
   transform: translateY(-6px) scale(1.01);
@@ -99,10 +84,7 @@
   background: rgba(20, 25, 35, 0.8);
 }
 
-.attendance-card:hover::before {
-  width: 6px;
-  box-shadow: 0 0 20px var(--primary-glow);
-}
+
 
 /* Internal Card Structure */
 .card-header {
@@ -289,5 +271,35 @@
 
 .btn-attend:active,
 .btn-miss:active {
+  transform: scale(0.96);
+}
+
+.btn-history {
+  grid-column: span 2;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-history:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.btn-history:active {
   transform: scale(0.96);
 }
