@@ -4,7 +4,7 @@ pydantic
 python-jose
 passlib
 bcrypt==3.2.2
-pymongo
+pymongo[srv]
 pydantic[email]
 python-dotenv
 python-multipart
