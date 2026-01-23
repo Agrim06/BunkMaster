@@ -8,19 +8,17 @@ from models import user_model
 from routes.attendance import router as attendance_router
 from routes.subjects import router as subjects_router
 from deps import get_current_user
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="BunkTracker API")
 
-from fastapi.middleware.cors import CORSMiddleware
-
-origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allow all origins for Vercel/Render connection
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://bunk-master-2026.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
