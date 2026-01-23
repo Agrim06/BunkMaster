@@ -5,7 +5,7 @@ import { markAttendance } from "../../api/attendance.api"
 import "react-calendar/dist/Calendar.css";
 import "../../styles/calendar.css"
 
-const CalendarView = ({ subjectId, onClose }) => {
+const CalendarView = ({ subjectId, onClose, onUpdate }) => {
     const [history, setHistory] = useState([]);
 
     useEffect(() => {
@@ -35,8 +35,8 @@ const CalendarView = ({ subjectId, onClose }) => {
         if (!selectedDate) return;
         try {
             const utcDate = new Date(Date.UTC(
-                selectedDate.getFullYear(), 
-                selectedDate.getMonth(), 
+                selectedDate.getFullYear(),
+                selectedDate.getMonth(),
                 selectedDate.getDate()
             ));
 
@@ -44,6 +44,7 @@ const CalendarView = ({ subjectId, onClose }) => {
             const result = await api.get(`/attendance/history/${subjectId}`);
             setHistory(result.data);
             setSelectedDate(null);
+            if (onUpdate) onUpdate(); // Trigger parent refresh
         } catch (error) {
             console.error("Error marking past attendance!", error);
         }

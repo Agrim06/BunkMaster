@@ -42,27 +42,61 @@ def add_attendance(
         result = attendance_collection.insert_one(attendance)
         attendance["_id"] = result.inserted_id
     
-    update_field = "attended_count" if data.attended else "missed_count"
+    request_date = data.date if data.date else datetime.utcnow()
+    start_of_day = request_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_of_day = request_date.replace(hour=23, minute=59, second=59, microsecond=999999)
 
-    attendance_collection.update_one(
-        {"_id" : attendance["_id"]},
-        {
-            "$inc" : {update_field : 1},
-            "$set" : {"last_updated" : datetime.utcnow()}
-        }
-    )
-    timestamp = data.date if data.date else datetime.utcnow()
-
-    log_entry = {
+    existing_log = attendance_logs_collection.find_one({
         "user_id" : current_user["id"],
         "subject_id" : subject_id,
-        "attended" : data.attended,
-        "timestamp" : timestamp
-    }
+        "timestamp" : {"$gte" : start_of_day, "$lte":end_of_day}
+    })
+    
+    if existing_log:
+        if existing_log["attended"] == data.attended:
+            return {"message": "Attendance already marked for today!"}
 
-    attendance_logs_collection.insert_one(log_entry)
+        attendance_logs_collection.update_one(
+            {"_id": existing_log["_id"]},
+            {"$set": {"attended": data.attended, "timestamp": request_date}}
+        )
 
-    return {"message" : "Attendance Updated!"}
+        inc_attended = 1 if data.attended else -1
+        inc_missed = -1 if data.attended else 1
+
+        attendance_collection.update_one(
+            {"_id": attendance["_id"]},
+            {
+                "$inc":{
+                    "attended_count" : inc_attended,
+                    "missed_count" : inc_missed
+                },
+                "$set":{"last_updated": datetime.utcnow()}
+            }
+        )
+        return {"message" : "Attendance updated for today!"}
+    else:
+        update_field = "attended_count" if data.attended else "missed_count"
+
+        attendance_collection.update_one(
+            {"_id" : attendance["_id"]},
+            {
+                "$inc" : {update_field : 1},
+                "$set" : {"last_updated" : datetime.utcnow()}
+            }
+        )
+        timestamp = data.date if data.date else datetime.utcnow()
+
+        log_entry = {
+            "user_id" : current_user["id"],
+            "subject_id" : subject_id,
+            "attended" : data.attended,
+            "timestamp" : timestamp
+        }
+
+        attendance_logs_collection.insert_one(log_entry)
+
+        return {"message" : "Attendance Recorded!"}
 
 @router.get("/summary" )
 def attendance_summary( current_user: dict = Depends(get_current_user)):

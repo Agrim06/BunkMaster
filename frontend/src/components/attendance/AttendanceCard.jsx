@@ -16,7 +16,7 @@ const AttendanceCard = ({ subject, onUpdate }) => {
 
     const handleAttendance = async (status) => {
         try {
-            await markAttendance(subject.subject_id, status);
+            await markAttendance(subject.subject_id, status, new Date());
             if (onUpdate) onUpdate();
         } catch (error) {
             console.error("Error marking attendance:", error);
@@ -78,6 +78,7 @@ const AttendanceCard = ({ subject, onUpdate }) => {
                 <CalendarView
                     subjectId={subject.subject_id}
                     onClose={() => setShowCalendar(false)}
+                    onUpdate={onUpdate}
                 />
             )}
 
