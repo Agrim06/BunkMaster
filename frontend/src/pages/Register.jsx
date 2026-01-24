@@ -55,20 +55,6 @@ const Register = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
-                    <div>
-                        <label className="auth-label">
-                            Minimum Attendance Goal: <strong style={{ color: "var(--primary)" }}>{minAttendance}%</strong>
-                        </label>
-                        <input
-                            type="range"
-                            min="50"
-                            max="100"
-                            step="5"
-                            value={minAttendance}
-                            onChange={(e) => setMinAttendance(e.target.value)}
-                            className="auth-range"
-                        />
-                    </div>
                     {error && <div className="auth-error">⚠️ {error}</div>}
                     <button className="auth-button" type="submit">
                         Sign Up
