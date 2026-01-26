@@ -4,7 +4,6 @@ class UserRegister(BaseModel):
     name : str
     email : EmailStr
     password : str
-    min_attendance : int
 
 class UserLogin(BaseModel):
     email : EmailStr
@@ -17,4 +16,6 @@ class TokenResponse(BaseModel):
 class UserResponse(BaseModel):
     name: str
     email: EmailStr
-    min_attendance: int
+
+class GoogleLoginRequest(BaseModel):
+    idToken:str

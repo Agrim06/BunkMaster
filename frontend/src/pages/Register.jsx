@@ -8,7 +8,6 @@ const Register = () => {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [minAttendance, setMinAttendance] = useState(75);
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
@@ -16,7 +15,7 @@ const Register = () => {
         e.preventDefault();
         setError("");
         try {
-            const response = await registerUser({ name, email, password, min_attendance: parseInt(minAttendance) });
+            const response = await registerUser({ name, email, password});
             console.log(response);
             navigate("/login");
         } catch (error) {

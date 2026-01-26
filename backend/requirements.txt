@@ -9,3 +9,5 @@ pydantic[email]
 python-dotenv
 python-multipart
 dnspython
+google-auth
+requests

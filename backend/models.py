@@ -5,6 +5,5 @@ def user_model(user: dict) ->dict:
         "id" : str(user["_id"]),
         "name" : user["name"],
         "email" : user["email"],
-        "min_attendance" : user["min_attendance"],
         "created_at": user["created_at"]
     }

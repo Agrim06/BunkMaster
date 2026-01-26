@@ -1,14 +1,18 @@
-from fastapi import FastAPI, HTTPException , Depends
+from fastapi import FastAPI, HTTPException , Depends , Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import datetime
 from database import users_collection
-from schemas.user import UserRegister, UserLogin, TokenResponse, UserResponse
+from schemas.user import UserRegister, UserLogin, TokenResponse, UserResponse, GoogleLoginRequest
 from auth import hash_password, verify_password, create_access_token, decode_token
 from models import user_model
 from routes.attendance import router as attendance_router
 from routes.subjects import router as subjects_router
 from deps import get_current_user
 from fastapi.middleware.cors import CORSMiddleware
+from google.oauth2 import id_token
+from google.auth.transport import requests
+import os
+
 
 app = FastAPI(title="BunkTracker API")
 
@@ -26,6 +30,12 @@ app.add_middleware(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
+@app.middleware("http")
+async def add_coop_header(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
+    return response
+
 @app.post("/register")
 def register(user : UserRegister):
     if users_collection.find_one({"email" : user.email}):
@@ -35,7 +45,6 @@ def register(user : UserRegister):
         "name" : user.name,
         "email" : user.email,
         "password" : hash_password(user.password),
-        "min_attendance" : user.min_attendance,
         "created_at" : datetime.utcnow()
     }
 
@@ -53,7 +62,11 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     token = create_access_token({"sub": db_user["email"]})
     return {
         "access_token": token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "user": {
+            "name": db_user["name"],
+            "email": db_user["email"]
+        }
     }
 
 @app.get("/me", response_model=UserResponse)
@@ -63,3 +76,43 @@ def get_profile(current_user: dict = Depends(get_current_user)):
 
 app.include_router(subjects_router)
 app.include_router(attendance_router)
+
+@app.post("/google-login")
+def google_login(request: GoogleLoginRequest):
+    try:
+        id_info = id_token.verify_oauth2_token(
+            request.idToken,
+            requests.Request(),
+            os.getenv("VITE_APP_GOOGLE_CLIENT_ID"),
+            clock_skew_in_seconds = 10
+        )
+    
+        email = id_info.get("email")
+        name = id_info.get("name")
+
+        if not email:
+            raise HTTPException(status_code= 400, detail="Invalid Google Token")
+        
+        user = users_collection.find_one({"email" : email})
+
+        if not user:
+            new_user = {
+                "name" : name,
+                "email" : email,
+                "password" : "",
+                "created_at" : datetime.utcnow()
+            }
+            users_collection.insert_one(new_user)
+    
+        token = create_access_token({"sub" : email})
+
+        return {
+            "access_token":token,
+            "token_type" : "bearer",
+            "user":{
+                "name":name,
+                "email": email
+            }
+        }
+    except ValueError as e:
+        raise HTTPException(status_code= 401 , detail="Invalid Google Token")
