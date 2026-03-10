@@ -17,8 +17,15 @@ def send_otp_email(email,otp):
     msg["From"] = sender_email
     msg["To"] = email
 
-
-    with smtplib.SMTP(os.getenv("SMTP_SERVER"), int(os.getenv("SMTP_PORT"))) as server:
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, email, msg.as_string())
+    try:
+        print(f"Attempting to send OTP email to {email}...")
+        port = os.getenv("SMTP_PORT")
+        server_addr = os.getenv("SMTP_SERVER")
+        
+        with smtplib.SMTP(server_addr, int(port) if port else 587) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, email, msg.as_string())
+        print(f"OTP email sent successfully to {email}!")
+    except Exception as e:
+        print(f"Failed to send OTP email: {e}")

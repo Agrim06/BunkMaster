@@ -1,15 +1,66 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import api from "../api/axios";
 import { registerUser } from "../api/auth.api";
 import "../styles/auth.css";
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 
 const Register = () => {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const from = (location.state && location.state.from) || "/";
+
+    useEffect(() => {
+        if (window.google && GOOGLE_CLIENT_ID) {
+            window.google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleGoogleResponse,
+                auto_select: false,
+                cancel_on_tap_outside: true,
+                ux_mode: "popup",
+            });
+
+            window.google.accounts.id.renderButton(
+                document.getElementById("googleSignUpDiv"),
+                {
+                    theme: "outline",
+                    size: "large",
+                    width: 250,
+                }
+            );
+        }
+    }, []);
+
+    async function handleGoogleResponse(response) {
+        try {
+            setError("");
+            setLoading(true);
+
+            const { data } = await api.post("/google-login", {
+                idToken: response.credential,
+            });
+
+            localStorage.setItem("token", data.access_token);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            window.dispatchEvent(new Event("authUserChanged"));
+            navigate(from, { replace: true });
+        } catch (err) {
+            console.log(err);
+            setError(
+                err?.response?.data?.message || "Google signup failed. Please try again."
+            );
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -53,10 +104,17 @@ const Register = () => {
                         required
                     />
                     {error && <div className="auth-error">⚠️ {error}</div>}
-                    <button className="auth-button" type="submit">
-                        Sign Up
+                    <button className="auth-button" type="submit" disabled={loading}>
+                        {loading ? "Signing up..." : "Sign Up"}
                     </button>
                 </form>
+
+                <div style={{ margin: "16px 0", textAlign: "center", color: "#6c757d" }}>
+                    <span>or</span>
+                </div>
+
+                <div id="googleSignUpDiv" style={{ display: "flex", justifyContent: "center" }}></div>
+
                 <div className="auth-link">
                     Already have an account?
                     <Link to="/login">Log In</Link>
