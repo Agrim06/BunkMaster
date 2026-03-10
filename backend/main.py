@@ -58,9 +58,22 @@ def register(user : UserRegister, background_tasks: BackgroundTasks):
         {"$set": otp_record},
         upsert=True
     )
-    
-    background_tasks.add_task(send_otp_email, user.email, otp)
-    
+
+    # In production, sending synchronously helps surface SMTP failures
+    # (many hosts block outbound SMTP or env vars may be missing).
+    smtp_mode = (os.getenv("SMTP_SEND_MODE") or "").strip().lower()
+    if smtp_mode == "sync":
+        try:
+            send_otp_email(user.email, otp)
+        except Exception:
+            otp_collection.delete_one({"email": user.email})
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to send OTP email. Please try again later."
+            )
+    else:
+        background_tasks.add_task(send_otp_email, user.email, otp)
+
     new_user = {
         "name" : user.name,
         "email" : user.email,

@@ -5,9 +5,27 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def send_otp_email(email,otp):
-    sender_email = os.getenv("SMTP_EMAIL")
-    sender_password = os.getenv("SMTP_PASSWORD")
+def _get_smtp_config():
+    sender_email = (os.getenv("SMTP_EMAIL") or "").strip()
+    sender_password = (os.getenv("SMTP_PASSWORD") or "").strip()
+    server_addr = (os.getenv("SMTP_SERVER") or "").strip()
+    port_raw = (os.getenv("SMTP_PORT") or "").strip()
+
+    if not sender_email or not sender_password or not server_addr:
+        raise RuntimeError(
+            "Missing SMTP configuration. Required: SMTP_EMAIL, SMTP_PASSWORD, SMTP_SERVER (and optionally SMTP_PORT)."
+        )
+
+    # Gmail app passwords are often stored with spaces (e.g. "abcd efgh ...").
+    # smtplib expects the raw password without spaces.
+    sender_password = sender_password.replace(" ", "")
+
+    port = int(port_raw) if port_raw else 587
+    return sender_email, sender_password, server_addr, port
+
+
+def send_otp_email(email, otp):
+    sender_email, sender_password, server_addr, port = _get_smtp_config()
 
     subject = "Your verification OTP"
     body= f"Your OTP for verification is: {otp}"
@@ -19,13 +37,21 @@ def send_otp_email(email,otp):
 
     try:
         print(f"Attempting to send OTP email to {email}...")
-        port = os.getenv("SMTP_PORT")
-        server_addr = os.getenv("SMTP_SERVER")
-        
-        with smtplib.SMTP(server_addr, int(port) if port else 587) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.sendmail(sender_email, email, msg.as_string())
+        timeout = float(os.getenv("SMTP_TIMEOUT", "20"))
+
+        if port == 465:
+            with smtplib.SMTP_SSL(server_addr, port, timeout=timeout) as server:
+                server.ehlo()
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, email, msg.as_string())
+        else:
+            with smtplib.SMTP(server_addr, port, timeout=timeout) as server:
+                server.ehlo()
+                server.starttls()
+                server.ehlo()
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, email, msg.as_string())
         print(f"OTP email sent successfully to {email}!")
     except Exception as e:
-        print(f"Failed to send OTP email: {e}")
+        print(f"Failed to send OTP email: {type(e).__name__}: {e}")
+        raise
