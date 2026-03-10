@@ -134,7 +134,8 @@ def google_login(request: GoogleLoginRequest):
                 "name" : name,
                 "email" : email,
                 "password" : "",
-                "created_at" : datetime.utcnow()
+                "created_at" : datetime.utcnow(),
+                "is_verified": True
             }
             users_collection.insert_one(new_user)
     

@@ -6,13 +6,13 @@
     align-items: center;
     justify-content: center;
     padding: 24px;
-    /* subtle overlay to deepen the background */
     background: linear-gradient(to bottom, transparent, rgba(11, 14, 20, 0.8));
 }
 
 .auth-card {
-    width: 100%;
-    max-width: 400px;
+    width: 380px;
+    max-width: 90%;
+    margin: auto;
     background: var(--bg-card);
     backdrop-filter: var(--backdrop-blur);
     -webkit-backdrop-filter: var(--backdrop-blur);
@@ -25,8 +25,10 @@
     position: relative;
     overflow: hidden;
 }
+#googleSignInDiv iframe {
+  width: 100% !important;
+}
 
-/* Neon glow line at top */
 .auth-card::after {
     content: '';
     position: absolute;

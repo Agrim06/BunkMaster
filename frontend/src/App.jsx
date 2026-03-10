@@ -5,39 +5,65 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
-import ProtectedRoute from "./auth/ProtectedRoute";
 import Subjects from "./pages/Subjects";
-import Navbar from "./components/layout/Navbar";
+
+import ProtectedRoute from "./auth/ProtectedRoute";
+import Layout from "./components/Layout";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* Public route */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        {/* Protected route */}
+        {/* Public routes */}
+
+        <Route
+          path="/login"
+          element={
+            <Layout>
+              <Login />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            <Layout>
+              <Register />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/verify-email"
+          element={
+            <Layout>
+              <VerifyEmail />
+            </Layout>
+          }
+        />
+
+        {/* Protected routes */}
+
         <Route
           path="/"
           element={
             <ProtectedRoute>
-              <Navbar />
-              <div className="layout">
+              <Layout>
                 <Dashboard />
-              </div>
+              </Layout>
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/subjects"
           element={
             <ProtectedRoute>
-              <Navbar />
-              <div className="layout">
+              <Layout>
                 <Subjects />
-              </div>
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -48,5 +74,3 @@ function App() {
 }
 
 export default App;
-
-

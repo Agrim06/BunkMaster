@@ -16,8 +16,6 @@ def _get_smtp_config():
             "Missing SMTP configuration. Required: SMTP_EMAIL, SMTP_PASSWORD, SMTP_SERVER (and optionally SMTP_PORT)."
         )
 
-    # Gmail app passwords are often stored with spaces (e.g. "abcd efgh ...").
-    # smtplib expects the raw password without spaces.
     sender_password = sender_password.replace(" ", "")
 
     port = int(port_raw) if port_raw else 587
