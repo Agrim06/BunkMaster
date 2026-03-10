@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException , Depends , Request
+from fastapi import FastAPI, HTTPException , Depends , Request, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import datetime , timedelta
 from database import users_collection, otp_collection
@@ -39,7 +39,7 @@ async def add_coop_header(request: Request, call_next):
     return response
 
 @app.post("/register")
-def register(user : UserRegister):  
+def register(user : UserRegister, background_tasks: BackgroundTasks):  
     if users_collection.find_one({"email" : user.email}):
         raise HTTPException(status_code=401 , detail="Email already registered!")
 
@@ -59,10 +59,7 @@ def register(user : UserRegister):
         upsert=True
     )
     
-    try:
-        send_otp_email(user.email, otp)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to send OTP email")
+    background_tasks.add_task(send_otp_email, user.email, otp)
     
     new_user = {
         "name" : user.name,
