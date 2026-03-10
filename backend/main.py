@@ -117,7 +117,7 @@ def google_login(request: GoogleLoginRequest):
         id_info = id_token.verify_oauth2_token(
             request.idToken,
             requests.Request(),
-            os.getenv("VITE_APP_GOOGLE_CLIENT_ID"),
+            os.getenv("VITE_GOOGLE_CLIENT_ID"),
             clock_skew_in_seconds = 10
         )
     
