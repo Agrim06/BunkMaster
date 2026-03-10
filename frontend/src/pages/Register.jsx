@@ -15,11 +15,9 @@ const Register = () => {
         e.preventDefault();
         setError("");
         try {
-            const response = await registerUser({ name, email, password});
-            console.log(response);
-            navigate("/login");
+            const response = await registerUser({ name, email, password });
+            navigate("/verify-email", { state: { email } });
         } catch (error) {
-            console.log(error);
             setError("Registration failed");
         }
     };

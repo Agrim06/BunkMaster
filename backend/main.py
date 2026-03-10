@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException , Depends , Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from datetime import datetime
-from database import users_collection
+from datetime import datetime , timedelta
+from database import users_collection, otp_collection
 from schemas.user import UserRegister, UserLogin, TokenResponse, UserResponse, GoogleLoginRequest
 from auth import hash_password, verify_password, create_access_token, decode_token
 from models import user_model
@@ -11,6 +11,8 @@ from deps import get_current_user
 from fastapi.middleware.cors import CORSMiddleware
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from otp import generate_otp
+from smtp import send_otp_email
 import os
 
 
@@ -37,19 +39,41 @@ async def add_coop_header(request: Request, call_next):
     return response
 
 @app.post("/register")
-def register(user : UserRegister):
+def register(user : UserRegister):  
     if users_collection.find_one({"email" : user.email}):
         raise HTTPException(status_code=401 , detail="Email already registered!")
 
+    otp = generate_otp()
+
+    expiry = datetime.utcnow() + timedelta(minutes=5)
+
+    otp_record = {
+        "email": user.email,
+        "otp": otp,
+        "expires_at": expiry
+    }
+    
+    otp_collection.update_one(
+        {"email": user.email},
+        {"$set": otp_record},
+        upsert=True
+    )
+    
+    try:
+        send_otp_email(user.email, otp)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to send OTP email")
+    
     new_user = {
         "name" : user.name,
         "email" : user.email,
         "password" : hash_password(user.password),
-        "created_at" : datetime.utcnow()
+        "created_at" : datetime.utcnow(),
+        "is_verified": False
     }
 
     users_collection.insert_one(new_user)
-    return { "message" : "User Registered Successfully"}    
+    return { "message" : "OTP sent successfully. Please check your email to verify your account."}    
 
 
 @app.post("/login")
@@ -116,3 +140,28 @@ def google_login(request: GoogleLoginRequest):
         }
     except ValueError as e:
         raise HTTPException(status_code= 401 , detail="Invalid Google Token")
+
+from schemas.user import OTPVerify
+
+@app.post("/verify-otp")
+def verify_otp(data: OTPVerify):
+
+    otp_record = otp_collection.find_one({
+        "email": data.email.strip(),
+        "otp": data.otp.strip()
+    })
+
+    if not otp_record:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+
+    if otp_record["expires_at"] < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="OTP expired")
+
+    users_collection.update_one(
+        {"email": data.email},
+        {"$set": {"is_verified": True}}
+    )
+
+    otp_collection.delete_one({"_id": otp_record["_id"]})
+
+    return {"message": "Email verified successfully"}

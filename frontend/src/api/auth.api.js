@@ -20,3 +20,8 @@ export const registerUser = async (data) => {
     return response.data;
 };
 
+//POST /verify-otp
+export const verifyOtp = async (data) => {
+    const response = await api.post("/verify-otp", data);
+    return response.data;
+};
