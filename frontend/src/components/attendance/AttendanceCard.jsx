@@ -27,10 +27,17 @@ const AttendanceCard = ({ subject, onUpdate }) => {
     const [showCalendar, setShowCalendar] = useState(false);
 
     const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const todayName = daysOfWeek[new Date().getDay()];
+    const todayName = daysOfWeek[new Date().getDay()].toLowerCase();
 
-    const hasSchedule = Array.isArray(subject.days) && subject.days.length > 0;
-    const isClassToday = !hasSchedule || subject.days.some(d => d.toLowerCase() === todayName.toLowerCase());
+    const validDays = Array.isArray(subject.days)
+        ? subject.days.filter(d => typeof d === 'string' && d.trim() !== '')
+        : [];
+
+    const hasSchedule = validDays.length > 0;
+    const isClassToday = !hasSchedule || validDays.some(d => {
+        const dayStr = d.toLowerCase().trim();
+        return dayStr.startsWith(todayName) || todayName.startsWith(dayStr);
+    });
 
     return (
         <div className="attendance-card">

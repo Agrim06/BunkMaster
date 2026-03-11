@@ -96,6 +96,18 @@ const Subjects = () => {
                                 />
                             </div>
 
+                            <div className="input-wrapper">
+                                <label>Target Attendance</label>
+                                <input
+                                    type="number"
+                                    placeholder="75%"
+                                    value={minAttendance}
+                                    onChange={(e) => setMinAttendance(e.target.value)}
+                                    min="0"
+                                    max="100"
+                                />
+                            </div>
+
                             <div className="input-wrapper full-width">
                                 <label>Days Schedule</label>
                                 <input
@@ -107,18 +119,6 @@ const Subjects = () => {
                                     required
                                 />
                             </div>
-
-                        <div className="input-wrapper">
-                                <label>Target Attendance</label>
-                                <input
-                                    type="number"
-                                    placeholder="75%"
-                                    value={minAttendance}
-                                    onChange={(e) => setMinAttendance(e.target.value)}
-                                    min="0"
-                                    max="100"
-                                />
-                            </div>                            
                         </div>
                     </div>
                     <button type="submit">Add Subject</button>
