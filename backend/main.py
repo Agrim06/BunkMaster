@@ -24,6 +24,7 @@ app.add_middleware(
         "http://localhost:5173",
         "http://localhost:3000",
         "https://bunk-master-2026.vercel.app",
+        "https://bunkmasterapp.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
