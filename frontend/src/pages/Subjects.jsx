@@ -72,39 +72,54 @@ const Subjects = () => {
             <div className="subjects-content">
                 <form onSubmit={handleAddSubject} className="add-subject-form">
                     <div className="form-group">
-                        <input
-                            type="text"
-                            placeholder="Subject name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                        />
+                        <div className="form-grid">
+                            <div className="input-wrapper full-width">
+                                <label>Subject Name</label>
+                                <input
+                                    type="text"
+                                    placeholder="Science"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
+                                />
+                            </div>
 
-                        <input
-                            type="number"
-                            placeholder="Classes per week"
-                            value={classesPerWeek}
-                            onChange={(e) => setClassesPerWeek(e.target.value)}
-                            min="1"
-                            required
-                        />
+                            <div className="input-wrapper">
+                                <label>Classes per week</label>
+                                <input
+                                    type="number"
+                                    placeholder="3"
+                                    value={classesPerWeek}
+                                    onChange={(e) => setClassesPerWeek(e.target.value)}
+                                    min="1"
+                                    required
+                                />
+                            </div>
 
-                        <input
-                            type="text"
-                            placeholder="Days (comma separated, e.g. Mon,Wed,Fri)"
-                            onChange={(e) =>
-                                setDays(e.target.value.split(",").map((d) => d.trim()))
-                            }
-                            required
-                        />
-                        <input
-                            type="number"
-                            placeholder="Minimum Attendance"
-                            value={minAttendance}
-                            onChange={(e) => setMinAttendance(e.target.value)}
-                            min="0"
-                            max="100"
-                        />
+                            <div className="input-wrapper full-width">
+                                <label>Days Schedule</label>
+                                <input
+                                    type="text"
+                                    placeholder="Mon, Wed, Fri"
+                                    onChange={(e) =>
+                                        setDays(e.target.value.split(",").map((d) => d.trim()))
+                                    }
+                                    required
+                                />
+                            </div>
+
+                        <div className="input-wrapper">
+                                <label>Target Attendance</label>
+                                <input
+                                    type="number"
+                                    placeholder="75%"
+                                    value={minAttendance}
+                                    onChange={(e) => setMinAttendance(e.target.value)}
+                                    min="0"
+                                    max="100"
+                                />
+                            </div>                            
+                        </div>
                     </div>
                     <button type="submit">Add Subject</button>
                 </form>
@@ -112,16 +127,39 @@ const Subjects = () => {
                 {loading ? (
                     <p>Loading subjects...</p>
                 ) : (
-                    <ul className="subjects-list">
+                    <div className="subjects-list">
                         {subjects.map((s) => (
-                            <li key={s._id || s.id} className="subject-item">
-                                {s.name}
-                                <button onClick={() => handleDeleteSubject(s._id || s.id)} className="delete-btn">
-                                    ❌
+                            <div key={s._id || s.id} className="subject-item">
+                                <div className="subject-info">
+                                    <h3 className="subject-name-display">{s.name}</h3>
+
+                                    <div className="subject-details">
+                                        <div className="detail-badge">
+                                            <span className="detail-icon">📅</span>
+                                            {s.classes_per_week} classes/week
+                                        </div>
+
+                                        {s.days && s.days.length > 0 && (
+                                            <div className="detail-badge days-badge">
+                                                <span className="detail-icon">🕒</span>
+                                                {s.days.join(", ")}
+                                            </div>
+                                        )}
+
+                                        {s.min_attendance && (
+                                            <div className="detail-badge target-badge">
+                                                <span className="detail-icon">🎯</span>
+                                                {s.min_attendance}% Target
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <button onClick={() => handleDeleteSubject(s._id || s.id)} className="delete-btn" title="Delete Subject">
+                                    ✖
                                 </button>
-                            </li>
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 )}
             </div>
         </div>

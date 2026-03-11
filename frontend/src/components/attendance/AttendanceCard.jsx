@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { markAttendance } from "../../api/attendance.api";
 import CalendarView from "./CalendarView"
+
 const AttendanceCard = ({ subject, onUpdate }) => {
 
     const getStatusInfo = (status) => {
@@ -24,6 +25,12 @@ const AttendanceCard = ({ subject, onUpdate }) => {
     };
 
     const [showCalendar, setShowCalendar] = useState(false);
+
+    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const todayName = daysOfWeek[new Date().getDay()];
+
+    const hasSchedule = Array.isArray(subject.days) && subject.days.length > 0;
+    const isClassToday = !hasSchedule || subject.days.some(d => d.toLowerCase() === todayName.toLowerCase());
 
     return (
         <div className="attendance-card">
@@ -61,6 +68,18 @@ const AttendanceCard = ({ subject, onUpdate }) => {
                     <span>Total</span>
                     <span className="stat-value">{subject.attended_count + subject.missed_count}</span>
                 </div>
+            </div>
+
+            <div style={{ minHeight: "50px", marginBottom: "8px" }}>
+                {!isClassToday ? (
+                    <div className="no-class-msg" style={{ textAlign: "center", color: "var(--warning)", fontSize: "0.9rem", backgroundColor: "rgba(255, 204, 0, 0.1)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255, 204, 0, 0.2)" }}>
+                        ℹ️ No classes scheduled for {subject.subject_name} today!
+                    </div>
+                ) : (
+                    <div className="class-today-msg" style={{ textAlign: "center", color: "var(--primary)", fontSize: "0.9rem", backgroundColor: "rgba(0, 242, 234, 0.1)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(0, 242, 234, 0.2)" }}>
+                        📅 You have {subject.subject_name} class today!
+                    </div>
+                )}
             </div>
 
             <div className="action-buttons">

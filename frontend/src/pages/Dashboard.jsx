@@ -52,7 +52,6 @@ const Dashboard = () => {
     <div className="dashboard-container">
       <div className="dashboard-header">
         <h1 className="dashboard-title">Attendance Overview</h1>
-        <p className="dashboard-subtitle">Track your progress and stay safe.</p>
       </div>
 
       {summary.length === 0 ? (
