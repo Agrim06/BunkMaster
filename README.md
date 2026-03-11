@@ -4,7 +4,7 @@ BunkMaster is a modern, responsive, and premium smart attendance tracking applic
 
 With a sleek glassmorphism aesthetic and a robust backend, BunkMaster provides a seamless and visually stunning user experience across both desktop and mobile devices.
 
-![image](https://github.com/user-attachments/assets/example-dashboard) *(Pro-tip: You can update this image with a real screenshot of your dashboard!)*
+
 
 ## ✨ Features
 
