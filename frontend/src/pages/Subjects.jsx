@@ -5,7 +5,7 @@ import "../styles/subjects.css"
 const Subjects = () => {
     const [subjects, setSubjects] = useState([]);
     const [classesPerWeek, setClassesPerWeek] = useState("");
-    const [days, setDays] = useState([]);
+    const [daysInput, setDaysInput] = useState("");
     const [name, setName] = useState("");
     const [loading, setLoading] = useState(true);
     const [minAttendance, setMinAttendance] = useState("");
@@ -37,15 +37,17 @@ const Subjects = () => {
         }
 
         try {
+            const parsedDays = daysInput.split(",").map(d => d.trim()).filter(d => Boolean(d));
+
             await addSubject({
                 name,
                 classes_per_week: parseInt(classesPerWeek, 10),
-                days,
+                days: parsedDays,
                 min_attendance: minAttendance ? parseInt(minAttendance, 10) : 75
             });
             setName("");
             setClassesPerWeek("");
-            setDays([]);
+            setDaysInput("");
             loadSubjects();
             setMinAttendance("");
         } catch (error) {
@@ -113,9 +115,8 @@ const Subjects = () => {
                                 <input
                                     type="text"
                                     placeholder="Mon, Wed, Fri"
-                                    onChange={(e) =>
-                                        setDays(e.target.value.split(",").map((d) => d.trim()))
-                                    }
+                                    value={daysInput}
+                                    onChange={(e) => setDaysInput(e.target.value)}
                                     required
                                 />
                             </div>

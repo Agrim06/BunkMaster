@@ -140,7 +140,8 @@ def attendance_summary( current_user: dict = Depends(get_current_user)):
             "attendance_percentage": round(percentage) ,
             "safe_bunk" : safe_bunk  ,
             "status" : status,
-            "min_attendance" : target_attendance
+            "min_attendance" : target_attendance,
+            "days": s.get("days", [])
         })
 
     return summary
