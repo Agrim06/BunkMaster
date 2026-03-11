@@ -54,7 +54,8 @@ def get_subjects(current_user: dict = Depends(get_current_user)):
             "id": str(s["_id"]),
             "name": s["name"],
             "classes_per_week": s["classes_per_week"],
-            "days": s.get("days", [])
+            "days": s.get("days", []),
+            "min_attendance": s.get("min_attendance")
         })
     return result
 
@@ -72,3 +73,31 @@ def delete_subject(
         raise HTTPException(status_code=404 , detail="Subject not found")
 
     return {"message" : "Subject deleted successfully"}
+
+
+@router.put("/{subject_id}")
+def update_subject(
+    subject_id: str,
+    subject_data : SubjectCreate,
+    current_user : dict = Depends(get_current_user)
+    
+):
+    existing = subjects_collection.find_one({"user_id": current_user["id"], "_id": ObjectId(subject_id)})
+    
+    if not existing:
+        raise HTTPException(status_code =404, detail="Subject not found")
+    
+    update_data = {
+        "name" : subject_data.name,
+        "classes_per_week": subject_data.classes_per_week,
+        "days":subject_data.days,
+        "min_attendance": subject_data.min_attendance,
+        "last_updated":datetime.utcnow(),
+    }
+
+    subjects_collection.update_one(
+        {"_id": ObjectId(subject_id)},
+        {"$set": update_data}
+    )
+
+    return{"message" : "Subject updated successfully!"}

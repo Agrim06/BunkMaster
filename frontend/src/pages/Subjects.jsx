@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getSubjects, addSubject, deleteSubject } from "../api/subject.api"
+import { getSubjects, addSubject, deleteSubject, updateSubject } from "../api/subject.api"
 import "../styles/subjects.css"
 
 const Subjects = () => {
@@ -9,6 +9,7 @@ const Subjects = () => {
     const [name, setName] = useState("");
     const [loading, setLoading] = useState(true);
     const [minAttendance, setMinAttendance] = useState("");
+    const [editingId, setEditingId] = useState(null); 
 
     const loadSubjects = () => {
         getSubjects()
@@ -39,20 +40,43 @@ const Subjects = () => {
         try {
             const parsedDays = daysInput.split(",").map(d => d.trim()).filter(d => Boolean(d));
 
-            await addSubject({
+            const subjectPayload = {
                 name,
                 classes_per_week: parseInt(classesPerWeek, 10),
                 days: parsedDays,
                 min_attendance: minAttendance ? parseInt(minAttendance, 10) : 75
-            });
+            };
+
+            if(editingId){
+                await updateSubject(editingId, subjectPayload);
+            }
+            else{
+                await addSubject(subjectPayload);
+            }
+
+
             setName("");
             setClassesPerWeek("");
             setDaysInput("");
-            loadSubjects();
+            setEditingId(null);
             setMinAttendance("");
+
+            loadSubjects();
+
         } catch (error) {
-            console.error("Error adding subject:", error);
+            console.error("Error saving subject:", error);
+            alert("Error saving subject updates !")
         }
+    };
+
+    const handleEditClick = (subject) => {
+        setEditingId(subject.id || subject._id);
+        setName(subject.name);
+        setClassesPerWeek(subject.classes_per_week.toString());
+        setDaysInput(subject.days ? subject.days.join(", ") : "");
+        setMinAttendance(subject.min_attendance ? subject.min_attendance.toString() : "75");
+        
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const handleDeleteSubject = async (id) => {
@@ -122,7 +146,27 @@ const Subjects = () => {
                             </div>
                         </div>
                     </div>
-                    <button type="submit">Add Subject</button>
+                    <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
+                        <button type="submit" style={{ flex: 1 }}>
+                            {editingId ? "Update Subject" : "Add Subject"}
+                        </button>
+                        
+                        {editingId && (
+                            <button 
+                                type="button" 
+                                className="cancel-btn"
+                                onClick={() => {
+                                    setEditingId(null);
+                                    setName("");
+                                    setClassesPerWeek("");
+                                    setDaysInput("");
+                                    setMinAttendance("");
+                                }}
+                            >
+                                Cancel
+                            </button>
+                        )}
+                    </div>
                 </form>
 
                 {loading ? (
@@ -150,14 +194,24 @@ const Subjects = () => {
                                         {s.min_attendance && (
                                             <div className="detail-badge target-badge">
                                                 <span className="detail-icon">🎯</span>
-                                                {s.min_attendance}% Target
+                                                Target: {s.min_attendance}% 
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                                <button onClick={() => handleDeleteSubject(s._id || s.id)} className="delete-btn" title="Delete Subject">
-                                    ✖
-                                </button>
+                                <div style={{ display: "flex", gap: "8px" }}>
+                                    <button 
+                                        onClick={() => handleEditClick(s)} 
+                                        className="edit-btn" 
+                                        style={{ background: "rgba(0, 242, 234, 0.1)", color: "var(--primary)", border: "1px solid rgba(0, 242, 234, 0.3)", padding: "12px", borderRadius: "8px", cursor: "pointer", fontSize: "16px"}}
+                                        title="Edit Subject"
+                                    >
+                                        ✏️
+                                    </button>
+                                    <button onClick={() => handleDeleteSubject(s._id || s.id)} className="delete-btn" title="Delete Subject">
+                                        ✖
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
