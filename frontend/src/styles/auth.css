@@ -25,11 +25,7 @@
     position: relative;
     overflow: hidden;
 }
-#googleSignInDiv iframe {
-  width: 100% !important;
-  display: block;
-  margin: 0 auto;
-}
+
 
 .auth-card::after {
     content: '';

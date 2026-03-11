@@ -39,7 +39,6 @@ function Login() {
       window.google.accounts.id.renderButton(container, {
         theme: "outline",
         size: "large",
-        width: "100%", // makes button fit container
       });
     }
   }, []);
