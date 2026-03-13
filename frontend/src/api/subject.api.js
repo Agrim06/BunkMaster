@@ -19,3 +19,8 @@ export const updateSubject = async(id, subjectData) =>{
     const response = await api.put(`/subjects/${id}`, subjectData);
     return response.data;
 }
+
+export const resetSubject = async(id) =>{
+    const response = await api.post(`/subjects/${id}/reset`);
+    return response.data;
+}

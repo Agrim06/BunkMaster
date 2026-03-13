@@ -34,7 +34,7 @@ const Navbar = () => {
         {isLoggedIn ? (
           <>
             <Link to="/" className="nav-link">Dashboard</Link>
-            <Link to="/subjects" className="nav-link">Subjects</Link>
+            <Link to="/subjects" className="nav-link">My Subjects</Link>
 
             <div className="user-profile" ref={profileRef}>
               <button

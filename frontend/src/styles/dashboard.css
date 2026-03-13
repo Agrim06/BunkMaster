@@ -17,17 +17,17 @@
 }
 
 .dashboard-header {
-  margin-bottom: 40px;
+  margin-bottom: 25px;
   text-align: center;
   position: relative;
 }
 
 .dashboard-title {
-  font-size: 38px;
+  font-size: 43px;
   font-weight: 800;
   color: var(--text-primary);
   margin-bottom: 12px;
-  letter-spacing: -0.8px;
+  letter-spacing: -0. 8px;
   text-shadow: 0 0 20px rgba(0, 242, 234, 0.1);
 }
 
@@ -75,8 +75,6 @@
   flex-direction: column;
 }
 
-
-
 .attendance-card:hover {
   transform: translateY(-4px) scale(1.01);
   box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.5);
@@ -84,25 +82,29 @@
   background: rgba(20, 25, 35, 0.8);
 }
 
-
-
 /* Internal Card Structure */
 .card-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: stretch;
   margin-bottom: 20px;
   padding-left: 8px;
 }
 
+.card-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
 .subject-name {
-  font-size: 22px;
+  font-size: 30px;
   font-weight: 800;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 0.5;
   letter-spacing: -0.5px;
   white-space: normal;
-  /* wrap text normally in vertical card */
   overflow: visible;
 }
 
@@ -146,7 +148,7 @@
   background: rgba(255, 42, 109, 0.1);
   color: var(--danger);
   border: 1px solid rgba(255, 42, 109, 0.2);
-  animation: glowPulse 2s infinite;
+  animation: glowPulse 1.2s infinite;
 }
 
 @keyframes glowPulse {
@@ -182,15 +184,15 @@
 }
 
 .percent-label {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-secondary);
   font-weight: 600;
-  margin-top: 4px;
+  margin-top: 2px;
   opacity: 0.8;
 }
 
 .attendance-bunk {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   margin-top: 8px;
 }
@@ -272,8 +274,34 @@
 }
 
 .btn-attend:active,
-.btn-miss:active {
+.btn-miss:active,
+.card-reset-btn:active {
   transform: scale(0.96);
+}
+
+.card-reset-btn {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  padding: 0;
+  border-radius: var(--radius-md);
+  font-size: 25px;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.card-reset-btn:hover {
+  background: rgba(242, 236, 226, 0.85);
+  color: #000;
+  border-color: rgba(255, 165, 0, 0.5);
+  transform: rotate(-360deg);
+  box-shadow: 0 4px 12px rgba(255, 165, 0, 0.4);
 }
 
 .btn-history {

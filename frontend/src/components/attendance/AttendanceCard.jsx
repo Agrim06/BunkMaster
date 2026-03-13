@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { markAttendance } from "../../api/attendance.api";
+import { resetSubject } from "../../api/subject.api";
 import CalendarView from "./CalendarView"
 
 const AttendanceCard = ({ subject, onUpdate }) => {
@@ -24,6 +25,16 @@ const AttendanceCard = ({ subject, onUpdate }) => {
         }
     };
 
+    const handleReset = async () => {
+        if (!window.confirm(`Reset all attendance for "${subject.subject_name}"? This cannot be undone!`)) return;
+        try {
+            await resetSubject(subject.subject_id);
+            if (onUpdate) onUpdate();
+        } catch (error) {
+            console.error("Error resetting subject:", error);
+        }
+    };
+
     const [showCalendar, setShowCalendar] = useState(false);
 
     const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -44,10 +55,15 @@ const AttendanceCard = ({ subject, onUpdate }) => {
             <div className="card-header">
                 <div>
                     <h3 className="subject-name">{subject.subject_name}</h3>
-                    <div className="percent-label">Target: {subject.min_attendance || 75}%</div>
+                    <div className="percent-label" style={{ marginTop: "6px" }}>Target: {subject.min_attendance || 75}%</div>
                 </div>
-                <div className={`status-badge ${statusInfo.class}`}>
-                    {statusInfo.icon} {subject.status}
+                <div className="card-header-right">
+                    <div className={`status-badge ${statusInfo.class}`}>
+                        {statusInfo.icon} {subject.status}
+                    </div>
+                    <button className="card-reset-btn" onClick={handleReset} title="Reset Attendance">
+                        ↺
+                    </button>
                 </div>
             </div>
 
@@ -56,8 +72,8 @@ const AttendanceCard = ({ subject, onUpdate }) => {
                 <div className="attendance-bunk">
                     {subject.safe_bunk > 0 ? ( 
                          subject.safe_bunk > 1 ?(
-                             <span style={{ color: "var(--success)" }}>You can bunk <strong>{subject.safe_bunk}</strong> class(es)</span>)
-                             : (<span style={{ color: "var(--success)" }}>You can bunk <strong>{subject.safe_bunk}</strong> class</span>) 
+                             <span style={{ color: "var(--success)" }}>You can bunk <strong>{subject.safe_bunk}</strong> class(es)!</span>)
+                             : (<span style={{ color: "var(--success)" }}>You can bunk <strong>{subject.safe_bunk}</strong> class!</span>) 
                     ) : (
                         <span style={{ color: "var(--danger)" }}>Don't miss any more classes!</span>
                     )}

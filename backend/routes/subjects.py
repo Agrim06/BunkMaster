@@ -2,7 +2,7 @@ from fastapi import APIRouter , Depends, HTTPException
 from datetime import datetime
 from bson import ObjectId
 
-from database import subjects_collection, attendance_collection
+from database import subjects_collection, attendance_collection , attendance_logs_collection
 from schemas.subject import SubjectCreate
 from auth import decode_token
 from deps import get_current_user
@@ -101,3 +101,24 @@ def update_subject(
     )
 
     return{"message" : "Subject updated successfully!"}
+
+@router.post("/{subject_id}/reset")
+def reset_subject(
+    subject_id : str,
+    current_user : dict = Depends(get_current_user)
+):
+    exisiting = subjects_collection.find_one({"user_id": current_user["id"] , "_id": ObjectId(subject_id)})
+
+    if not exisiting:
+        raise HTTPException(status_code = 404 , detail = "Subject not found!")
+
+    attendance_collection.update_one(
+        {"user_id" : current_user["id"] , "subject_id" : subject_id},
+        {"$set" : {"attended_count" : 0 , "missed_count" : 0 , "last_updated" : datetime.utcnow()}}
+    )
+
+    attendance_logs_collection.delete_many({
+        "user_id": current_user["id"] , "subject_id" : subject_id
+    })
+
+    return {"message" : "Subject attendance has been reset successfully!"}

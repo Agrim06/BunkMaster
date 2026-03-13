@@ -1,13 +1,13 @@
 /* frontend/src/styles/subjects.css */
 
 .subjects-container {
-    padding: 0 20px;
+    padding: 0 30px;
 }
 
 .subjects-title {
     font-size: 32px;
     font-weight: 800;
-    margin-bottom: 32px;
+    margin-bottom: 25px;
     color: var(--text-primary);
     background: linear-gradient(135deg, #fff, #94a3b8);
     -webkit-background-clip: text;
@@ -174,10 +174,10 @@
 }
 
 .subject-name-display {
-    font-size: 24px;
-    font-weight: 800;
+    font-size: 26px;
+    font-weight: 700;
     margin: 0;
-    line-height: 1.2;
+    line-height: 1.0;
     letter-spacing: -0.5px;
 }
 
@@ -216,18 +216,42 @@
     font-size: 14px;
 }
 
+.edit-btn,
+.reset-btn,
+.delete-btn {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    padding: 0;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-btn {
+    background: rgba(0, 242, 234, 0.1);
+    color: var(--primary);
+    border: 1px solid rgba(0, 242, 234, 0.3);
+}
+
+.edit-btn:hover {
+    background: rgba(0, 242, 234, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 242, 234, 0.3);
+}
+
+.edit-btn:active {
+    transform: scale(0.96);
+}
+
 .delete-btn {
     background: rgba(255, 42, 109, 0.1);
     color: var(--danger);
     border: 1px solid rgba(255, 42, 109, 0.3);
-    padding: 12px;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .delete-btn:hover {
@@ -240,6 +264,24 @@
 .delete-btn:active {
     transform: scale(0.96);
 }
+
+.reset-btn {
+    background: rgba(255, 165, 0, 0.1);
+    color: #ffa500;
+    border: 1px solid rgba(255, 165, 0, 0.3);
+}
+
+.reset-btn:hover {
+    background: rgba(255, 165, 0, 0.85);
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 165, 0, 0.4);
+}
+
+.reset-btn:active {
+    transform: scale(0.96);
+}
+
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {

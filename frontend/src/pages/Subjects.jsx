@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getSubjects, addSubject, deleteSubject, updateSubject } from "../api/subject.api"
+import { getSubjects, addSubject, deleteSubject, updateSubject, resetSubject } from "../api/subject.api"
 import "../styles/subjects.css"
 
 const Subjects = () => {
@@ -91,6 +91,19 @@ const Subjects = () => {
         }
 
     }
+
+    const handleResetSubject = async(id) =>{
+        if(!window.confirm("Reset all attendance for this subject? This action cannot be undone !")) return;
+        try{
+            await resetSubject(id);
+            alert("Subject data has been reset!");
+            loadSubjects();
+        }catch(error){
+            console.error("Error resetting subjects:", error);
+            alert("Error resetting subject!");
+        }
+    }
+
     return (
         <div className="subjects-container">
             <h1 className="subjects-title">Manage your subjects</h1>
@@ -203,10 +216,16 @@ const Subjects = () => {
                                     <button 
                                         onClick={() => handleEditClick(s)} 
                                         className="edit-btn" 
-                                        style={{ background: "rgba(0, 242, 234, 0.1)", color: "var(--primary)", border: "1px solid rgba(0, 242, 234, 0.3)", padding: "12px", borderRadius: "8px", cursor: "pointer", fontSize: "16px"}}
                                         title="Edit Subject"
                                     >
                                         ✏️
+                                    </button>
+                                    <button
+                                        onClick={() => handleResetSubject(s._id || s.id)}
+                                        className="reset-btn"
+                                        title="Reset Attendance"
+                                    >
+                                        ↺
                                     </button>
                                     <button onClick={() => handleDeleteSubject(s._id || s.id)} className="delete-btn" title="Delete Subject">
                                         ✖
