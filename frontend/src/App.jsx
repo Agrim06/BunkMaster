@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 import Subjects from "./pages/Subjects";
+import Profile from "./pages/Profile";
 
 import ProtectedRoute from "./auth/ProtectedRoute";
 import Layout from "./components/Layout";
@@ -63,6 +64,17 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <Subjects />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Profile />
               </Layout>
             </ProtectedRoute>
           }

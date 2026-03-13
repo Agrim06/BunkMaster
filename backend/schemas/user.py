@@ -1,4 +1,6 @@
 from pydantic import BaseModel, EmailStr
+from datetime import datetime
+from typing import Optional
 
 
 class UserRegister(BaseModel):
@@ -20,6 +22,7 @@ class TokenResponse(BaseModel):
 class UserResponse(BaseModel):
     name: str
     email: EmailStr
+    created_at: Optional[datetime] = None
 
 
 class GoogleLoginRequest(BaseModel):

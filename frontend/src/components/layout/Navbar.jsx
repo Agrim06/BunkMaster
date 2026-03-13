@@ -1,13 +1,23 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getMe } from "../../api/auth.api";
 import "../../styles/layout.css"
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const profileRef = useRef(null);
 
   const isLoggedIn = !!localStorage.getItem("token");
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      getMe()
+        .then(data => setUser(data))
+        .catch(err => console.error("Error fetching user for navbar:", err));
+    }
+  }, [isLoggedIn]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -48,10 +58,14 @@ const Navbar = () => {
               {isProfileOpen && (
                 <div className="profile-dropdown">
                   <div className="dropdown-header">
-                    <span className="dropdown-name">My Account</span>
+                    <span className="dropdown-name">{user?.name || "Loading..."}</span>
+                    <span className="dropdown-email" style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 'normal', opacity: '0.7' }}>{user?.email}</span>
                   </div>
+                  <Link to="/profile" className="dropdown-item profile" onClick={() => setIsProfileOpen(false)}>
+                    Profile
+                  </Link>
                   <button onClick={handleLogout} className="dropdown-item logout-link">
-                    Log Out 🚪
+                   Log Out
                   </button>
                 </div>
               )}

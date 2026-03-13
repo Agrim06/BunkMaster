@@ -25,3 +25,9 @@ export const verifyOtp = async (data) => {
     const response = await api.post("/verify-otp", data);
     return response.data;
 };
+
+//GET /me
+export const getMe = async () => {
+    const response = await api.get("/me");
+    return response.data;
+};

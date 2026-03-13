@@ -184,7 +184,8 @@
   color: var(--text-secondary);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  text-decoration: none;
 }
 
 .dropdown-item:hover {
@@ -200,6 +201,11 @@
 .dropdown-item.logout-link:hover {
   background: rgba(255, 42, 109, 0.1);
   color: var(--danger);
+}
+
+.dropdown-item.profile:hover {
+  background: rgba(0, 242, 234, 0.1);
+  color: var(--primary);
 }
 
 /* Mobile Responsiveness */

@@ -72,7 +72,7 @@ const AttendanceCard = ({ subject, onUpdate }) => {
                 <div className="attendance-bunk">
                     {subject.safe_bunk > 0 ? ( 
                          subject.safe_bunk > 1 ?(
-                             <span style={{ color: "var(--success)" }}>You can bunk <strong>{subject.safe_bunk}</strong> class(es)!</span>)
+                             <span style={{ color: "var(--success)" }}>You can bunk <strong>{subject.safe_bunk}</strong> classes!</span>)
                              : (<span style={{ color: "var(--success)" }}>You can bunk <strong>{subject.safe_bunk}</strong> class!</span>) 
                     ) : (
                         <span style={{ color: "var(--danger)" }}>Don't miss any more classes!</span>
