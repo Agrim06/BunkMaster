@@ -125,6 +125,41 @@ def add_attendance(
 
         return {"message" : "Attendance Recorded!"}
 
+@router.delete("/{subject_id}")
+def delete_attendance(
+    subject_id: str,
+    date: str,
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        dt = datetime.strptime(date, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+    
+    start_of_day = dt.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_of_day = dt.replace(hour=23, minute=59, second=59, microsecond=999999)
+    
+    log = attendance_logs_collection.find_one({
+        "user_id": current_user["id"],
+        "subject_id": subject_id,
+        "timestamp": {"$gte": start_of_day, "$lte": end_of_day}
+    })
+    
+    if not log:
+        raise HTTPException(status_code=404, detail="Attendance log not found for this date")
+    
+    # Update summarized counts
+    update_field = "attended_count" if log["attended"] else "missed_count"
+    attendance_collection.update_one(
+        {"user_id": current_user["id"], "subject_id": subject_id},
+        {"$inc": {update_field: -1}, "$set": {"last_updated": datetime.utcnow()}}
+    )
+    
+    # Remove the specific log entry
+    attendance_logs_collection.delete_one({"_id": log["_id"]})
+    
+    return {"message": "Attendance cleared for the day"}
+
 @router.get("/summary" )
 def attendance_summary( current_user: dict = Depends(get_current_user)):
     subjects = subjects_collection.find({"user_id" : current_user["id"]})

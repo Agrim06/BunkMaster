@@ -1,11 +1,245 @@
+/* ---------- Calendar Container (Glass Theme) ---------- */
 .calendar-container {
     position: absolute;
-    top: 0%;
-    left: 0;
-    width: 100%;
-    z-index: 50;
-    margin-top: 10px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-    background: rgba(255, 255, 255, 0.773);
-    border-radius: 5px;
+    inset: 0;
+    z-index: 100;
+
+    background: linear-gradient(145deg,#0f172a,#020617);
+    backdrop-filter: blur(16px);
+
+    border-radius: 16px;
+    padding: 24px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+
+    box-shadow: 
+        0 10px 40px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+
+    animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* ---------- React Calendar ---------- */
+.react-calendar {
+    width: 100% !important;
+    max-width: 100%;
+    background: transparent !important;
+    border: none !important;
+    font-family: inherit !important;
+    color: #e2e8f0 !important;
+}
+
+
+/* ---------- Navigation ---------- */
+.react-calendar__navigation button {
+    color: #60a5fa !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    transition: all .2s ease;
+}
+
+.react-calendar__navigation button:hover {
+    background: rgba(248, 243, 243, 0.05) !important;
+    border-radius: 8px;
+    transform: scale(1.05);
+}
+
+
+/* ---------- Weekdays ---------- */
+.react-calendar__month-view__weekdays {
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    color: #64748b;
+}
+
+
+/* ---------- Date Tiles ---------- */
+.react-calendar__tile {
+    padding: 12px 6px !important;
+    border-radius: 10px;
+    transition: all .18s ease;
+    color: #e2e8f0;
+}
+
+.react-calendar__tile:enabled:hover {
+    background: rgba(108, 104, 104, 0.15) !important;
+    color: #60a5fa !important;
+    transform: translateY(-2px);
+}
+
+
+/* ---------- Current Day ---------- */
+.react-calendar__tile--now {
+    background: rgb(255, 255, 255) !important;
+    border: 1px solid #dae41c !important;
+    color: #60a5fa !important;
+}
+
+
+/* ---------- Selected Day ---------- */
+.react-calendar__tile--active {
+    background: linear-gradient(135deg,#38bdf8,#6366f1) !important;
+    color: white !important;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(59,130,246,0.4);
+}
+
+
+/* ---------- Attendance Indicators ---------- */
+
+.attended-present {
+    background: rgba(34,197,94,0.15) !important;
+    border-bottom: 3px solid #22c55e !important;
+}
+
+.attended-absent {
+    background: rgba(228, 6, 6, 0.397) !important;
+    border-bottom: 3px solid #ef4444 !important;
+}
+
+
+/* ---------- Close Button ---------- */
+.close-calendar-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+    border: none;
+
+    background: rgba(255,255,255,0.05);
+    color: #94a3b8;
+
+    font-size: 20px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all .2s ease;
+}
+
+.close-calendar-btn:hover {
+    background: #ef4444;
+    color: white;
+}
+
+
+/* ---------- Popup Modal ---------- */
+.date-popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 300px;
+    max-width: 85%;
+
+    padding: 24px;
+
+    border-radius: 14px;
+
+    background: rgba(15,23,42,0.95);
+    backdrop-filter: blur(16px);
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    box-shadow: 
+        0 20px 60px rgba(0,0,0,0.7),
+        0 0 25px rgba(99,102,241,0.25);
+
+    text-align: center;
+    z-index: 110;
+}
+
+.date-popup p {
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+
+/* ---------- Popup Buttons ---------- */
+.popup-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.popup-actions button {
+    padding: 11px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .18s ease;
+}
+
+
+/* Present */
+.btn-present {
+    background: #22c55e;
+    color: black;
+}
+
+.btn-present:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(34,197,94,0.45);
+}
+
+
+/* Absent */
+.btn-absent {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-absent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(239,68,68,0.45);
+}
+
+
+/* Clear */
+.btn-clear {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #64748b;
+    color: #cbd5f5;
+}
+
+.btn-clear:hover {
+    background: rgba(250,204,21,0.1);
+    border-color: #facc15;
+    color: #facc15;
+}
+
+
+/* Cancel */
+.btn-cancel {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+}
+
+.btn-cancel:hover {
+    background: rgba(255,255,255,0.18);
 }

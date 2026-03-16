@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Calendar from 'react-calendar';
 import api from "../../api/axios";
-import { markAttendance } from "../../api/attendance.api"
+import { markAttendance, deleteAttendance } from "../../api/attendance.api"
 import "react-calendar/dist/Calendar.css";
 import "../../styles/calendar.css"
 
@@ -44,49 +44,49 @@ const CalendarView = ({ subjectId, onClose, onUpdate }) => {
             const result = await api.get(`/attendance/history/${subjectId}`);
             setHistory(result.data);
             setSelectedDate(null);
-            if (onUpdate) onUpdate(); // Trigger parent refresh
+            if (onUpdate) onUpdate(); 
         } catch (error) {
             console.error("Error marking past attendance!", error);
         }
     }
 
+    const handleClear = async () => {
+        if (!selectedDate) return;
+        try {
+            const dateStr = selectedDate.toLocaleDateString('en-CA'); 
+            await deleteAttendance(subjectId, dateStr);
+            
+            const result = await api.get(`/attendance/history/${subjectId}`);
+            setHistory(result.data);
+            setSelectedDate(null);
+            if (onUpdate) onUpdate();
+        } catch (error) {
+            console.error("Error clearing attendance!", error);
+            alert("Failed to clear attendance!");
+        }
+    }
+
     return (
         <div className="calendar-container">
-            {selectedDate && (
-                <div className="date-popup">
-                    <p>Mark for {selectedDate.toDateString()}</p>
-                    <div className="popup-actions">
-                        <button onClick={() => handleMark(true)} className="btn-present">Present</button>
-                        <button onClick={() => handleMark(false)} className="btn-absent">Absent</button>
-                        <button onClick={() => setSelectedDate(null)} className="btn-cancel">Cancel</button>
-                    </div>
-                </div>
-            )}
-            <button className="close-calendar-btn" onClick={onClose}>×</button>
+            <button className="close-calendar-btn" onClick={onClose} title="Close History">×</button>
+            <h4 style={{ marginBottom: "15px", color: "var(--primary)", textAlign: "center" }}>Attendance History</h4>
+            
             <Calendar
                 tileClassName={getTileClassName}
                 onClickDay={onDateClick}
             />
-            <style>{`
-                .attended-present { background: #056c1dff !important; color: #155724; }
-                .attended-absent { background: #ed1023ff !important; color: #721c24; }
-                .react-calendar { width: 100%; border: none;border-radius : 5px; background: white; color: black }
-                
-                .close-calendar-btn {
-                    position: absolute;
-                    top: 10px;
-                    right: 10px;
-                    background: transparent;
-                    border: none;
-                    font-size: 24px;
-                    cursor: pointer;
-                    color: #333;
-                    z-index: 60;
-                }
-                .close-calendar-btn:hover {
-                    color: red;
-                }
-            `}</style>
+
+            {selectedDate && (
+                <div className="date-popup">
+                    <p>Mark attendance for<br/><span style={{ color: "var(--primary)" }}>{selectedDate.toLocaleDateString()}</span></p>
+                    <div className="popup-actions">
+                        <button onClick={() => handleMark(true)} className="btn-present">✅ Present</button>
+                        <button onClick={() => handleMark(false)} className="btn-absent">❌ Absent</button>
+                        <button onClick={handleClear} className="btn-clear">🗑️ Clear</button>
+                        <button onClick={() => setSelectedDate(null)} className="btn-cancel">Cancel</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

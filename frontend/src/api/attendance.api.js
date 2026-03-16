@@ -33,3 +33,12 @@ export const downloadAttendanceData = async () => {
         throw error;
     }
 };
+
+// DELETE /attendance/{subject_id}
+export const deleteAttendance = async (subjectId, date) => {
+    // date should be in YYYY-MM-DD format
+    const response = await api.delete(`/attendance/${subjectId}`, {
+        params: { date }
+    });
+    return response.data;
+};
