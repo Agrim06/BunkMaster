@@ -1,14 +1,42 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from datetime import datetime
 from bson import ObjectId
 from pymongo import DESCENDING
+import io
+import csv
 from schemas.attendance import AttendanceUpdate
 from deps import get_current_user
 from services.attendance_service import (calculate_safe_bunk , calculate_attendance_percentage)
 from database import attendance_logs_collection , attendance_collection , subjects_collection
 
-
 router = APIRouter(prefix="/attendance" , tags=["Attendance"])
+
+@router.get("/download")
+def download_attendance(current_user: dict = Depends(get_current_user)):
+    subjects = list(subjects_collection.find({"user_id": current_user["id"]}))
+    subject_map = {str(s["_id"]): s["name"] for s in subjects}
+    
+    logs = list(attendance_logs_collection.find({"user_id": current_user["id"]}))
+    
+    logs.sort(key=lambda x: (subject_map.get(x["subject_id"], "Unknown"), -x["timestamp"].timestamp()))
+    
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Date", "Subject", "Status"])
+    
+    for log in logs:
+        subject_name = subject_map.get(log["subject_id"], "Unknown")
+        status = "Present" if log["attended"] else "Absent"
+        date_str = log["timestamp"].strftime("%Y-%m-%d")
+        writer.writerow([date_str, subject_name, status])
+    
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=attendance_data_{datetime.utcnow().strftime('%Y%m%d')}.csv"}
+    )
 
 @router.post("/{subject_id}")
 def add_attendance(
@@ -22,7 +50,7 @@ def add_attendance(
     })
 
     if not attendance :
-        # Verify if the subject exists for this user
+        
         subject_record = subjects_collection.find_one({
              "_id": ObjectId(subject_id), 
              "user_id": current_user["id"]
@@ -31,7 +59,6 @@ def add_attendance(
         if not subject_record:
             raise HTTPException(status_code=404 , detail="Subject not found")
 
-        # If subject exists but attendance record is missing, create it (Self-Healing)
         attendance = {
             "user_id": current_user["id"],
             "subject_id": subject_id,

@@ -59,7 +59,8 @@ const Profile = () => {
     };
 
     const getStatusClass = (status) => {
-        switch (status) {
+        const s = (status || "").toUpperCase().trim();
+        switch (s) {
             case "SAFE": return "pct-safe";
             case "BORDERLINE": return "pct-warning";
             case "SHORTAGE": return "pct-danger";
@@ -94,19 +95,24 @@ const Profile = () => {
                     <span className="profile-subject-stat">Goal</span>
                     <span className="profile-subject-stat" style={{ textAlign: "right" }}>Status</span>
                 </div>
-                {summary.map((s) => (
-                    <div key={s.subject_id} className="profile-subject-row">
-                        <span className="profile-subject-name">{s.subject_name}</span>
-                        <span className="profile-subject-stat">{s.attended_count}</span>
-                        <span className="profile-subject-stat">{s.missed_count}</span>
-                        <span className="profile-subject-stat">{s.min_attendance}%</span>
-                        <span className="profile-subject-stat" style={{ textAlign: "right" }}>
-                            <span className={`profile-pct-badge ${getStatusClass(s.status)}`}>
-                                {s.attendance_percentage}%
+                {summary.map((s) => {
+                    // Fallback status calculation if backend fails/filters it
+                    const status = s.status || (s.attendance_percentage < s.min_attendance ? "SHORTAGE" : (s.safe_bunk === 0 ? "BORDERLINE" : "SAFE"));
+                    
+                    return (
+                        <div key={s.subject_id} className="profile-subject-row">
+                            <span className="profile-subject-name">{s.subject_name}</span>
+                            <span className="profile-subject-stat">{s.attended_count}</span>
+                            <span className="profile-subject-stat">{s.missed_count}</span>
+                            <span className="profile-subject-stat">{s.min_attendance}%</span>
+                            <span className="profile-subject-stat" style={{ textAlign: "right" }}>
+                                <span className={`profile-pct-badge ${getStatusClass(status)}`}>
+                                    {s.attendance_percentage}%
+                                </span>
                             </span>
-                        </span>
-                    </div>
-                ))}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

@@ -299,9 +299,9 @@
 .card-reset-btn:hover {
   background: rgba(242, 236, 226, 0.85);
   color: #000;
-  border-color: rgba(255, 165, 0, 0.5);
-  transform: rotate(-360deg);
-  box-shadow: 0 4px 12px rgba(255, 165, 0, 0.4);
+  border-color: rgba(10, 10, 10, 0.5);
+  transform: rotate(-360deg) scale(1.1);
+  box-shadow: 0 4px 12px rgba(22, 21, 20, 0.4);
 }
 
 .btn-history {

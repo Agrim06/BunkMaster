@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSubjects, addSubject, deleteSubject, updateSubject, resetSubject } from "../api/subject.api"
+import { downloadAttendanceData } from "../api/attendance.api";
 import "../styles/subjects.css"
 
 const Subjects = () => {
@@ -23,6 +24,14 @@ const Subjects = () => {
     useEffect(() => {
         loadSubjects();
     }, []);
+
+    const handleDownload = async () => {
+        try {
+            await downloadAttendanceData();
+        } catch (err) {
+            alert("Failed to download attendance data. Please try again.");
+        }
+    };
 
     const handleAddSubject = async (e) => {
         e.preventDefault();
@@ -106,7 +115,31 @@ const Subjects = () => {
 
     return (
         <div className="subjects-container">
-            <h1 className="subjects-title">Manage your subjects</h1>
+            <div className="subjects-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <h1 className="subjects-title" style={{ margin: 0 }}>Manage your subjects</h1>
+                <button 
+                    className="download-btn" 
+                    onClick={handleDownload}
+                    style={{
+                        padding: "10px 18px",
+                        borderRadius: "10px",
+                        border: "none",
+                        background: "var(--primary)",
+                        color: "#000",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        boxShadow: "0 4px 15px rgba(0, 242, 234, 0.3)",
+                        transition: "all 0.3s ease"
+                    }}
+                    onMouseOver={(e) => e.target.style.transform = "translateY(-2px)"}
+                    onMouseOut={(e) => e.target.style.transform = "translateY(0)"}
+                >
+                    📥 Download CSV
+                </button>
+            </div>
 
             <div className="subjects-content">
                 <form onSubmit={handleAddSubject} className="add-subject-form">

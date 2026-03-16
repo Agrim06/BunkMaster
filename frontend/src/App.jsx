@@ -9,6 +9,7 @@ import Subjects from "./pages/Subjects";
 import Profile from "./pages/Profile";
 
 import ProtectedRoute from "./auth/ProtectedRoute";
+import PublicRoute from "./auth/PublicRoute";
 import Layout from "./components/Layout";
 
 function App() {
@@ -21,27 +22,33 @@ function App() {
         <Route
           path="/login"
           element={
-            <Layout>
-              <Login />
-            </Layout>
+            <PublicRoute>
+              <Layout>
+                <Login />
+              </Layout>
+            </PublicRoute>
           }
         />
 
         <Route
           path="/register"
           element={
-            <Layout>
-              <Register />
-            </Layout>
+            <PublicRoute>
+              <Layout>
+                <Register />
+              </Layout>
+            </PublicRoute>
           }
         />
 
         <Route
           path="/verify-email"
           element={
-            <Layout>
-              <VerifyEmail />
-            </Layout>
+            <PublicRoute>
+              <Layout>
+                <VerifyEmail />
+              </Layout>
+            </PublicRoute>
           }
         />
 

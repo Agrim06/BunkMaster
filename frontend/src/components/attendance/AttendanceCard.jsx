@@ -26,7 +26,7 @@ const AttendanceCard = ({ subject, onUpdate }) => {
     };
 
     const handleReset = async () => {
-        if (!window.confirm(`Reset all attendance for "${subject.subject_name}"? This cannot be undone!`)) return;
+        if (!window.confirm(`Reset all attendance for ${subject.subject_name}? This cannot be undone!`)) return;
         try {
             await resetSubject(subject.subject_id);
             if (onUpdate) onUpdate();
