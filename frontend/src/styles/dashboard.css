@@ -341,16 +341,16 @@
   }
 
   .dashboard-header {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
   .dashboard-title {
-    font-size: 28px;
-    margin-bottom: 8px;
+    font-size: 26px;
+    margin-bottom: 6px;
   }
 
   .dashboard-subtitle {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .attendance-grid {
@@ -359,7 +359,7 @@
   }
 
   .attendance-card {
-    padding: 16px;
+    padding: 16px 12px;
   }
 
   .card-header {
@@ -367,7 +367,12 @@
   }
 
   .subject-name {
-    font-size: 20px;
+    font-size: 22px;
+  }
+
+  .status-badge {
+    padding: 4px 8px;
+    font-size: 10px;
   }
 
   .percentage-display {
@@ -376,11 +381,30 @@
   }
 
   .big-percent {
-    font-size: 32px;
+    font-size: 30px;
   }
 
   .stats-row {
     padding: 10px 0;
     margin-bottom: 16px;
+  }
+
+  .stat-item {
+    font-size: 10px;
+  }
+  
+  .stat-value {
+    font-size: 14px;
+  }
+
+  .btn-attend, .btn-miss {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .card-reset-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
   }
 }

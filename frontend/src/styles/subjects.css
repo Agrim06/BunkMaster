@@ -302,8 +302,8 @@
     }
 
     .subjects-title {
-        font-size: 28px;
-        margin-bottom: 24px;
+        font-size: 26px;
+        margin-bottom: 20px;
     }
 
     .add-subject-form {
@@ -314,6 +314,13 @@
         grid-template-columns: 1fr;
         gap: 16px;
     }
+    
+    .add-subject-form button[type="submit"],
+    .add-subject-form .cancel-btn {
+        width: 100%;
+        padding: 16px;
+        font-size: 15px;
+    }
 
     .subject-item {
         padding: 16px;
@@ -323,11 +330,24 @@
     }
 
     .subject-name-display {
-        font-size: 20px;
+        font-size: 22px;
     }
 
-    .delete-btn {
+    .subject-details {
         width: 100%;
-        padding: 10px;
+        gap: 8px;
+    }
+    
+    .detail-badge {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+
+    .edit-btn,
+    .reset-btn,
+    .delete-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
     }
 }

@@ -215,11 +215,17 @@ const Subjects = () => {
                     </div>
                 </form>
 
-                {loading ? (
-                    <p>Loading subjects...</p>
-                ) : (
-                    <div className="subjects-list">
-                        {subjects.map((s) => (
+                <div className="subjects-list">
+                    {loading ? (
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+                            <p style={{ fontSize: '18px', color: 'var(--text-secondary)', fontWeight: '600' }}>Loading subjects...</p>
+                        </div>
+                    ) : subjects.length === 0 ? (
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+                            <p style={{ fontSize: '18px', color: 'var(--text-secondary)', fontWeight: '600' }}>No subjects found. Add a subject to get started.</p>
+                        </div>
+                    ) : (
+                        subjects.map((s) => (
                             <div key={s._id || s.id} className="subject-item">
                                 <div className="subject-info">
                                     <h3 className="subject-name-display">{s.name}</h3>
@@ -265,9 +271,9 @@ const Subjects = () => {
                                     </button>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                )}
+                        ))
+                    )}
+                </div>
             </div>
         </div>
     );
