@@ -38,7 +38,10 @@ function Login() {
 
       window.google.accounts.id.renderButton(container, {
         theme: "outline",
-        size: "large",
+        size: "medium",
+        width: 200,
+        shape: "rectangular",
+        text: "signin_with",
       });
     }
   }, []);
@@ -107,9 +110,12 @@ function Login() {
 
   return (
     <div className="auth-container">
+      <div className="bg-blob"></div>
+      <div className="bg-blob bg-blob-2"></div>
+      <div className="bg-blob bg-blob-3"></div>
       <div className="auth-card">
-        <h2 className="auth-title">Welcome Back</h2>
-        <p className="auth-subtitle">Log in to manage your attendance</p>
+        <h2 className="auth-title">Welcome Back!</h2>
+        <p className="auth-subtitle">Log in to your account</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <input
@@ -130,6 +136,12 @@ function Login() {
             required
           />
 
+          <div style={{ textAlign: 'right', marginTop: '-12px', marginBottom: '8px' }}>
+            <Link to="/forgot-password" style={{ color: 'var(--text-secondary)', fontSize: '13px', textDecoration: 'none', fontWeight: '500', opacity: 0.8 }}>
+              Forgot Password?
+            </Link>
+          </div>
+
           {error && (
             <p
               style={{
@@ -147,25 +159,14 @@ function Login() {
           </button>
         </form>
 
-        <div
-          style={{
-            margin: "16px 0",
-            textAlign: "center",
-            color: "#6c757d",
-          }}
-        >
+        <div className="auth-divider">
           <span>or</span>
         </div>
 
         {/* Google Sign In */}
-        <div
-          id="googleSignInDiv"
-          style={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        ></div>
+        <div className="social-button-container">
+          <div id="googleSignInDiv"></div>
+        </div>
 
         <div className="auth-link">
           Don't have an account?

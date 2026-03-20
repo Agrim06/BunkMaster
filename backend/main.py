@@ -2,7 +2,10 @@ from fastapi import FastAPI, HTTPException , Depends , Request, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import datetime , timedelta
 from database import users_collection, otp_collection
-from schemas.user import UserRegister, UserLogin, TokenResponse, UserResponse, GoogleLoginRequest
+from schemas.user import (
+    UserRegister, UserLogin, TokenResponse, UserResponse, 
+    GoogleLoginRequest, ForgotPasswordRequest, ResetPasswordRequest
+)
 from auth import hash_password, verify_password, create_access_token, decode_token
 from models import user_model
 from routes.attendance import router as attendance_router
@@ -177,3 +180,62 @@ def verify_otp(data: OTPVerify):
     otp_collection.delete_one({"_id": otp_record["_id"]})
 
     return {"message": "Email verified successfully"}
+
+@app.post("/forgot-password")
+def forgot_password(data: ForgotPasswordRequest, background_tasks: BackgroundTasks):
+    user = users_collection.find_one({"email": data.email})
+    if not user:
+        # For security, we might not want to disclose if the email exists, 
+        # but for this app's UX, we'll return a message suggesting it was sent if found.
+        return {"message": "If an account with that email exists, an OTP has been sent."}
+
+    otp = generate_otp()
+    expiry = datetime.utcnow() + timedelta(minutes=5)
+
+    otp_record = {
+        "email": data.email,
+        "otp": otp,
+        "expires_at": expiry
+    }
+
+    otp_collection.update_one(
+        {"email": data.email},
+        {"$set": otp_record},
+        upsert=True
+    )
+
+    background_tasks.add_task(
+        send_otp_email, 
+        data.email, 
+        otp,
+        subject="BunkMaster - Password Reset Request",
+        body=f"Hello,\n\nWe received a request to reset your BunkMaster password. Your OTP is: {otp}\n\nIf you did not request this, you can safely ignore this email.\n\nThis code will expire in 5 minutes."
+    )
+    return {"message": "OTP sent successfully. Please check your email."}
+
+@app.post("/reset-password")
+def reset_password(data: ResetPasswordRequest):
+    otp_record = otp_collection.find_one({
+        "email": data.email.strip(),
+        "otp": data.otp.strip()
+    })
+
+    if not otp_record:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+
+    if otp_record["expires_at"] < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="OTP expired")
+
+    # Update user password
+    result = users_collection.update_one(
+        {"email": data.email},
+        {"$set": {"password": hash_password(data.new_password)}}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Clear OTP after successful reset
+    otp_collection.delete_one({"_id": otp_record["_id"]})
+
+    return {"message": "Password reset successfully"}

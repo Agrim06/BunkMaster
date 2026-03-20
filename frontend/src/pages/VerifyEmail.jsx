@@ -32,6 +32,9 @@ const VerifyEmail = () => {
 
     return (
         <div className="auth-container">
+            <div className="bg-blob"></div>
+            <div className="bg-blob bg-blob-2"></div>
+            <div className="bg-blob bg-blob-3"></div>
             <div className="auth-card">
                 <h2 className="auth-title">Verify Email</h2>
                 <p className="auth-subtitle">

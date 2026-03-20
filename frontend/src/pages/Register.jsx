@@ -32,8 +32,10 @@ const Register = () => {
                 document.getElementById("googleSignUpDiv"),
                 {
                     theme: "outline",
-                    size: "large",
-                    width: 250,
+                    size: "medium",
+                    width: 200,
+                    shape: "rectangular",
+                    text: "signup_with",
                 }
             );
         }
@@ -75,6 +77,9 @@ const Register = () => {
 
     return (
         <div className="auth-container">
+            <div className="bg-blob"></div>
+            <div className="bg-blob bg-blob-2"></div>
+            <div className="bg-blob bg-blob-3"></div>
             <div className="auth-card">
                 <h2 className="auth-title">Create Account</h2>
                 <p className="auth-subtitle">Start tracking your attendance today</p>
@@ -109,11 +114,13 @@ const Register = () => {
                     </button>
                 </form>
 
-                <div style={{ margin: "16px 0", textAlign: "center", color: "#6c757d" }}>
+                <div className="auth-divider">
                     <span>or</span>
                 </div>
 
-                <div id="googleSignUpDiv" style={{ display: "flex", justifyContent: "center" }}></div>
+                <div className="social-button-container">
+                    <div id="googleSignUpDiv"></div>
+                </div>
 
                 <div className="auth-link">
                     Already have an account?

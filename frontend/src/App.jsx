@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 import Subjects from "./pages/Subjects";
@@ -25,6 +27,28 @@ function App() {
             <PublicRoute>
               <Layout>
                 <Login />
+              </Layout>
+            </PublicRoute>
+          }
+        />
+
+        <Route
+          path="/forgot-password"
+          element={
+            <PublicRoute>
+              <Layout>
+                <ForgotPassword />
+              </Layout>
+            </PublicRoute>
+          }
+        />
+
+        <Route
+          path="/reset-password"
+          element={
+            <PublicRoute>
+              <Layout>
+                <ResetPassword />
               </Layout>
             </PublicRoute>
           }

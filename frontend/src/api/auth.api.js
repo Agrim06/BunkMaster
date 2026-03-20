@@ -31,3 +31,15 @@ export const getMe = async () => {
     const response = await api.get("/me");
     return response.data;
 };
+
+//POST /forgot-password
+export const requestPasswordReset = async (email) => {
+    const response = await api.post("/forgot-password", { email });
+    return response.data;
+};
+
+//POST /reset-password
+export const resetPassword = async (data) => {
+    const response = await api.post("/reset-password", data);
+    return response.data;
+};

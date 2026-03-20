@@ -13,9 +13,6 @@ def _get_smtp_config():
     server_addr = (os.getenv("SMTP_SERVER") or "").strip()
     port_raw = (os.getenv("SMTP_PORT") or "").strip()
 
-    # Some providers (like Brevo) use a technical SMTP login that is
-    # different from the "From" email address. Allow overriding the
-    # login separately via SMTP_LOGIN, otherwise fall back to SMTP_EMAIL.
     smtp_login = (os.getenv("SMTP_LOGIN") or sender_email).strip()
 
     if not sender_email or not sender_password or not server_addr:
@@ -101,9 +98,11 @@ def _send_via_brevo_api(recipient_email, subject, body):
         )
 
 
-def send_otp_email(email, otp):
-    subject = "Your verification OTP"
-    body = f"Your OTP for verification is: {otp}"
+def send_otp_email(email, otp, subject=None, body=None):
+    if not subject:
+        subject = "Your verification OTP"
+    if not body:
+        body = f"Your OTP for verification is: {otp}"
 
     try:
         # Prefer Brevo HTTP API when configured (best for production).
