@@ -42,6 +42,10 @@ async def add_coop_header(request: Request, call_next):
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
     return response
 
+@app.get("/ping")
+def ping():
+    return {"status": "ok", "message": "BunkTracker is awake!"}
+
 @app.post("/register")
 def register(user : UserRegister, background_tasks: BackgroundTasks):  
     if users_collection.find_one({"email" : user.email}):
