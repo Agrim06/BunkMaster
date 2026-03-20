@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -110,6 +110,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Catch-all route to redirect back to home/dashboard */}
+        <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>
     </BrowserRouter>
