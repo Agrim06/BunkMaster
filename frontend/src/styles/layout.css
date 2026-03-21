@@ -22,15 +22,21 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-.navbar-logo {
-  font-size: 28px;
-  font-weight: 900;
-  color: var(--text-primary);
-  letter-spacing: -1px;
-  background: linear-gradient(135deg, #fff, var(--primary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.navbar-logo-container {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  transition: transform 0.2s ease;
+}
+
+/* .navbar-logo-container:hover {
+  transform: scale(1.05);
+} */
+
+.navbar-logo-img {
+  height: 100%;
+  width: auto;
+  display: block;
 }
 
 .navbar-links {

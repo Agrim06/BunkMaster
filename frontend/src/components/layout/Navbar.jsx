@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getMe } from "../../api/auth.api";
 import "../../styles/layout.css"
+import logo from "../../images/logo.svg";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -38,7 +39,9 @@ const Navbar = () => {
   return (
     <nav className="navbar">
 
-      <Link to="/" className="navbar-logo" style={{ textDecoration: "none" }}>🎓 BunkMaster</Link>
+      <Link to="/" className="navbar-logo-container">
+        <img src={logo} alt="BunkMaster Logo" className="navbar-logo-img" />
+      </Link>
 
       <div className="navbar-links">
         {isLoggedIn ? (
