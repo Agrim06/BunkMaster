@@ -337,7 +337,7 @@
 /* Mobile Responsiveness */
 @media (max-width: 600px) {
   .dashboard-container {
-    padding: 0 16px;
+    padding: 0 12px;
   }
 
   .dashboard-header {
@@ -345,7 +345,7 @@
   }
 
   .dashboard-title {
-    font-size: 26px;
+    font-size: 28px;
     margin-bottom: 6px;
   }
 
@@ -359,19 +359,21 @@
   }
 
   .attendance-card {
-    padding: 16px 12px;
+    padding: 16px;
   }
 
   .card-header {
     margin-bottom: 16px;
+    padding-left: 0;
   }
 
   .subject-name {
     font-size: 22px;
+    line-height: 1.2;
   }
 
   .status-badge {
-    padding: 4px 8px;
+    padding: 4px 10px;
     font-size: 10px;
   }
 
@@ -381,11 +383,11 @@
   }
 
   .big-percent {
-    font-size: 30px;
+    font-size: 32px;
   }
 
   .stats-row {
-    padding: 10px 0;
+    padding: 12px 0;
     margin-bottom: 16px;
   }
 
@@ -394,17 +396,48 @@
   }
   
   .stat-value {
-    font-size: 14px;
+    font-size: 15px;
   }
 
-  .btn-attend, .btn-miss {
+  .btn-attend, .btn-miss, .btn-history {
     font-size: 12px;
-    padding: 8px;
+    padding: 12px;
   }
 
   .card-reset-btn {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 400px) {
+  .dashboard-container {
+    padding: 0 10px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-header-right {
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .subject-name {
     font-size: 20px;
+  }
+
+  .dashboard-title {
+    font-size: 24px;
+  }
+
+  .attendance-card {
+    padding: 14px;
   }
 }

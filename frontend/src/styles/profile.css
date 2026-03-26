@@ -194,7 +194,7 @@
     border: 1px solid rgba(255, 42, 109, 0.2);
 }
 
-/* Mobile */
+/* ── Mobile Optimization (Tablets & Large Phones) ── */
 @media (max-width: 600px) {
     .profile-container {
         padding: 0 16px;
@@ -203,8 +203,8 @@
     .profile-hero {
         flex-direction: column;
         text-align: center;
-        padding: 24px 20px;
-        gap: 16px;
+        padding: 36px 24px;
+        gap: 20px;
     }
 
     .profile-info {
@@ -213,17 +213,115 @@
         align-items: center;
     }
 
-    .profile-stats {
-        grid-template-columns: 1fr;
+    .profile-name {
+        font-size: 26px;
+    }
+
+    .profile-avatar-large {
+        width: 80px;
+        height: 80px;
+        font-size: 32px;
+    }
+
+    .profile-subject-row.header-row {
+        display: none;
     }
 
     .profile-subject-row {
-        grid-template-columns: 1fr 60px 60px 60px 70px;
-        padding: 14px 16px;
-        gap: 4px;
+        grid-template-columns: 1fr auto;
+        padding: 20px;
+        gap: 16px;
     }
 
-    .profile-subjects-header {
+    .profile-subject-name {
+        grid-column: 1;
+        font-size: 19px;
+        font-weight: 800;
+    }
+
+    .profile-pct-badge {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: center;
+        padding: 6px 14px;
+        font-size: 14px;
+    }
+
+    /* Stats Grid below Name and Badge */
+    .profile-subject-row > *:nth-child(2),
+    .profile-subject-row > *:nth-child(3),
+    .profile-subject-row > *:nth-child(4) {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 10px 4px;
+        border-radius: var(--radius-sm);
+        font-size: 12px;
+    }
+
+    .profile-subject-row > *:nth-child(2) { grid-column: 1; grid-row: 2; border-radius: var(--radius-md) 0 0 var(--radius-md); }
+    .profile-subject-row > *:nth-child(3) { grid-column: 1; grid-row: 2; margin-left: 33.33%; border-radius: 0; width: 33.33% !important; }
+    .profile-subject-row > *:nth-child(4) { grid-column: 1; grid-row: 2; margin-left: 66.66%; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+
+    /* For extra accuracy with our custom labels */
+    .profile-subject-stat {
+        width: 33.33%;
+    }
+
+    .profile-subject-stat::before {
+        content: attr(data-label);
+        font-size: 9px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.3);
+        font-weight: 800;
+        margin-bottom: 4px;
+        display: block;
+    }
+}
+
+/* ── Extra Small Phones (Smartphone Optimized) ── */
+@media (max-width: 450px) {
+    .profile-title {
+        font-size: 26px;
+        margin-bottom: 20px;
+    }
+
+    .profile-hero {
+        padding: 28px 20px;
+        gap: 16px;
+    }
+
+    .profile-avatar-large {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
+    }
+
+    .profile-name {
+        font-size: 22px;
+    }
+
+    .profile-email {
+        font-size: 14px;
+    }
+
+    .profile-subject-row {
         padding: 16px;
+        gap: 12px;
+    }
+
+    .profile-subject-name {
+        font-size: 17px;
+    }
+
+    .profile-pct-badge {
+        padding: 5px 12px;
+        font-size: 13px;
+    }
+
+    .profile-subject-stat::before {
+        font-size: 8px;
     }
 }

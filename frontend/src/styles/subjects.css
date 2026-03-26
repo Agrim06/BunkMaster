@@ -4,16 +4,43 @@
     padding: 0 30px;
 }
 
+.subjects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
 .subjects-title {
     font-size: 32px;
     font-weight: 800;
-    margin-bottom: 25px;
+    margin: 0;
     color: var(--text-primary);
     background: linear-gradient(135deg, #fff, #94a3b8);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     text-shadow: 0 0 30px rgba(0, 242, 234, 0.1);
+}
+
+.download-btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    background: var(--primary);
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(0, 242, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.download-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
 }
 
 .subjects-content {
@@ -287,6 +314,7 @@
 @media (max-width: 768px) {
     .subjects-content {
         flex-direction: column;
+        gap: 24px;
     }
 
     .add-subject-form,
@@ -301,53 +329,89 @@
         padding: 0 16px;
     }
 
+    .subjects-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+
     .subjects-title {
         font-size: 26px;
-        margin-bottom: 20px;
+    }
+
+    .download-btn {
+        width: max-content; /* Don't make it full-width by default if too big */
+        padding: 8px 14px;
+        font-size: 14px;
     }
 
     .add-subject-form {
-        padding: 20px;
+        padding: 24px 20px;
     }
 
     .form-grid {
         grid-template-columns: 1fr;
         gap: 16px;
     }
-    
+
     .add-subject-form button[type="submit"],
     .add-subject-form .cancel-btn {
         width: 100%;
         padding: 16px;
         font-size: 15px;
+        justify-content: center;
     }
 
     .subject-item {
-        padding: 16px;
+        padding: 20px 16px;
         flex-direction: column;
         align-items: flex-start;
-        gap: 16px;
+        gap: 20px;
     }
 
     .subject-name-display {
-        font-size: 22px;
+        font-size: 24px;
+        line-height: 1.2;
     }
 
     .subject-details {
         width: 100%;
         gap: 8px;
     }
-    
+
     .detail-badge {
         font-size: 11px;
-        padding: 4px 10px;
+        padding: 5px 12px;
     }
 
     .edit-btn,
     .reset-btn,
     .delete-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 16px;
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+        flex: 1;
+    }
+
+    .subject-item>div:last-child {
+        width: 100%;
+        justify-content: space-between;
+        display: flex;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 400px) {
+    .subjects-title {
+        font-size: 22px;
+    }
+
+    .download-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .subject-name-display {
+        font-size: 20px;
     }
 }

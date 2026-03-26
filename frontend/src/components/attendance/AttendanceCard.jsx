@@ -98,7 +98,7 @@ const AttendanceCard = ({ subject, onUpdate }) => {
             <div style={{ minHeight: "50px", marginBottom: "8px" }}>
                 {!isClassToday ? (
                     <div className="no-class-msg" style={{ textAlign: "center", color: "var(--warning)", fontSize: "0.9rem", backgroundColor: "rgba(255, 204, 0, 0.1)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255, 204, 0, 0.2)" }}>
-                        ℹ️ No classes scheduled for {subject.subject_name} today!
+                        🎉 No classes scheduled for {subject.subject_name} today!
                     </div>
                 ) : (
                     <div className="class-today-msg" style={{ textAlign: "center", color: "var(--primary)", fontSize: "0.9rem", backgroundColor: "rgba(0, 242, 234, 0.1)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(0, 242, 234, 0.2)" }}>

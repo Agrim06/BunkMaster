@@ -115,27 +115,11 @@ const Subjects = () => {
 
     return (
         <div className="subjects-container">
-            <div className="subjects-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                <h1 className="subjects-title" style={{ margin: 0 }}>Manage your subjects</h1>
+            <div className="subjects-header">
+                <h1 className="subjects-title">Manage your subjects</h1>
                 <button 
                     className="download-btn" 
                     onClick={handleDownload}
-                    style={{
-                        padding: "10px 18px",
-                        borderRadius: "10px",
-                        border: "none",
-                        background: "var(--primary)",
-                        color: "#000",
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        boxShadow: "0 4px 15px rgba(0, 242, 234, 0.3)",
-                        transition: "all 0.3s ease"
-                    }}
-                    onMouseOver={(e) => e.target.style.transform = "translateY(-2px)"}
-                    onMouseOut={(e) => e.target.style.transform = "translateY(0)"}
                 >
                     📥 Download CSV
                 </button>

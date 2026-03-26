@@ -102,9 +102,9 @@ const Profile = () => {
                     return (
                         <div key={s.subject_id} className="profile-subject-row">
                             <span className="profile-subject-name">{s.subject_name}</span>
-                            <span className="profile-subject-stat">{s.attended_count}</span>
-                            <span className="profile-subject-stat">{s.missed_count}</span>
-                            <span className="profile-subject-stat">{s.min_attendance}%</span>
+                            <span className="profile-subject-stat" data-label="attended">{s.attended_count}</span>
+                            <span className="profile-subject-stat" data-label="missed">{s.missed_count}</span>
+                            <span className="profile-subject-stat" data-label="goal">{s.min_attendance}%</span>
                             <span className="profile-subject-stat" style={{ textAlign: "right" }}>
                                 <span className={`profile-pct-badge ${getStatusClass(status)}`}>
                                     {s.attendance_percentage}%
