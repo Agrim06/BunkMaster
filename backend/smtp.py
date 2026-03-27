@@ -105,7 +105,6 @@ def send_otp_email(email, otp, subject=None, body=None):
         body = f"Your OTP for verification is: {otp}"
 
     try:
-        # Prefer Brevo HTTP API when configured (best for production).
         if os.getenv("BREVO_API_KEY"):
             _send_via_brevo_api(email, subject, body)
         else:

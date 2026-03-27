@@ -152,7 +152,7 @@ def google_login(request: GoogleLoginRequest):
             }
             users_collection.insert_one(new_user)
     
-        if remember_me:
+        if request.remember_me:
             expires = timedelta(days=30)
         else:
             expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
