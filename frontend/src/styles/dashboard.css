@@ -23,12 +23,12 @@
 }
 
 .dashboard-title {
-  font-size: 43px;
-  font-weight: 800;
+  font-size: 40px;
+  font-weight: 850;
   color: var(--text-primary);
-  margin-bottom: 12px;
-  letter-spacing: -0. 8px;
-  text-shadow: 0 0 20px rgba(0, 242, 234, 0.1);
+  margin-bottom: 8px;
+  letter-spacing: -1.2px;
+  text-shadow: none;
 }
 
 .dashboard-subtitle {
@@ -58,17 +58,16 @@
   }
 }
 
-/* Glass Card */
+/* Glass Card (Sharpened) */
 .attendance-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
+  background: rgba(20, 25, 35, 0.85); /* More solid */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: var(--glass-border);
   border-top: var(--glass-highlight);
   border-radius: var(--radius-lg);
-  padding: 20px;
-  /* Reduced padding for compactness */
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  padding: 24px;
+  transition: all 0.3s ease;
   position: relative;
   box-shadow: var(--glass-shadow);
   display: flex;
@@ -76,10 +75,9 @@
 }
 
 .attendance-card:hover {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.5);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
   border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(20, 25, 35, 0.8);
 }
 
 /* Internal Card Structure */
@@ -165,22 +163,18 @@
 
 .percentage-display {
   text-align: center;
-  padding: 16px;
-  background: rgba(11, 14, 20, 0.4);
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.25);
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   margin-bottom: 20px;
 }
 
 .big-percent {
-  font-size: 38px;
+  font-size: 42px;
   font-weight: 900;
-  color: var(--text-primary);
+  color: #fff;
   line-height: 1;
-  background: linear-gradient(135deg, #fff, var(--text-secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
 .percent-label {

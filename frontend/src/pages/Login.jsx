@@ -14,6 +14,7 @@ function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -53,10 +54,12 @@ function Login() {
 
       const { data } = await api.post("/google-login", {
         idToken: response.credential,
+        remember_me: rememberMe,
       });
 
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      const storage = rememberMe ? localStorage : sessionStorage;
+      storage.setItem("token", data.access_token);
+      storage.setItem("user", JSON.stringify(data.user));
 
       window.dispatchEvent(new Event("authUserChanged"));
 
@@ -89,10 +92,11 @@ function Login() {
     setLoading(true);
 
     try {
-      const data = await loginUser({ email, password });
+      const data = await loginUser({ email, password, remember_me: rememberMe });
 
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      const storage = rememberMe ? localStorage : sessionStorage;
+      storage.setItem("token", data.access_token);
+      storage.setItem("user", JSON.stringify(data.user));
 
       window.dispatchEvent(new Event("authUserChanged"));
 
@@ -136,7 +140,15 @@ function Login() {
             required
           />
 
-          <div style={{ textAlign: 'right', marginTop: '-12px', marginBottom: '8px' }}>
+          <div className="auth-options">
+            <label className="remember-me">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              Remember Me
+            </label>
             <Link to="/forgot-password" style={{ color: 'var(--text-secondary)', fontSize: '13px', textDecoration: 'none', fontWeight: '500', opacity: 0.8 }}>
               Forgot Password?
             </Link>

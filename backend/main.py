@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException , Depends , Request, BackgroundTasks
+from fastapi import FastAPI, HTTPException , Depends , Request, BackgroundTasks, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import datetime , timedelta
 from database import users_collection, otp_collection
@@ -95,13 +95,18 @@ def register(user : UserRegister, background_tasks: BackgroundTasks):
 
 
 @app.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
+def login(form_data: OAuth2PasswordRequestForm = Depends(), remember_me: bool = Form(False)):
     db_user = users_collection.find_one({"email": form_data.username})
 
     if not db_user or not verify_password(form_data.password, db_user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_access_token({"sub": db_user["email"]})
+    if remember_me:
+        expires = timedelta(days=30)
+    else:
+        expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    token = create_access_token({"sub": db_user["email"]}, expires_delta=expires)
     return {
         "access_token": token,
         "token_type": "bearer",
@@ -147,7 +152,12 @@ def google_login(request: GoogleLoginRequest):
             }
             users_collection.insert_one(new_user)
     
-        token = create_access_token({"sub" : email})
+        if remember_me:
+            expires = timedelta(days=30)
+        else:
+            expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    
+        token = create_access_token({"sub" : email}, expires_delta=expires)
 
         return {
             "access_token":token,

@@ -27,6 +27,7 @@ class UserResponse(BaseModel):
 
 class GoogleLoginRequest(BaseModel):
     idToken: str
+    remember_me: Optional[bool] = False
 
 class OTPRequest(BaseModel):
     email: EmailStr

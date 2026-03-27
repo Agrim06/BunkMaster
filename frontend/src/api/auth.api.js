@@ -5,6 +5,7 @@ export const loginUser = async (credentials) => {
     const formData = new URLSearchParams();
     formData.append("username", credentials.email);
     formData.append("password", credentials.password);
+    formData.append("remember_me", credentials.remember_me ? "true" : "false");
 
     const response = await api.post("/login", formData, {
         headers: {

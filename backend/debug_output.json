@@ -1,0 +1,70 @@
+{
+  "users": [
+    {
+      "_id": {
+        "$oid": "69770564908579fba22a76a7"
+      },
+      "name": "Agrim",
+      "email": "admin@example.com",
+      "password": "$2b$12$Fp9oWZ8qdTeFnKgNQm12AO/Qph4NSu0R4VnIbck0MBligECcFqY/G",
+      "created_at": {
+        "$date": "2026-01-26T06:10:44.853Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "69afc4c2a341b8b6bf5fcf35"
+      },
+      "name": "Agrim",
+      "email": "agrimkedia@gmail.com",
+      "password": "",
+      "created_at": {
+        "$date": "2026-03-10T07:14:10.980Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "69afd77fc4188b741b9fa840"
+      },
+      "name": "rgn",
+      "email": "agrimk2006@gmail.com",
+      "password": "$2b$12$my5AbW0zY0vcZbnYrib5IuF/7L6xmgYXvxlpE92b2BLTHgXxhsC6y",
+      "created_at": {
+        "$date": "2026-03-10T08:34:07.210Z"
+      },
+      "is_verified": false
+    }
+  ],
+  "otps": [
+    {
+      "_id": {
+        "$oid": "69a1ba638b7ea53b03527a2c"
+      },
+      "email": "agrimk2006@gmail.com",
+      "expires_at": {
+        "$date": "2026-03-10T08:39:03.377Z"
+      },
+      "otp": "631787"
+    },
+    {
+      "_id": {
+        "$oid": "69a1ba7d8b7ea53b03527a2d"
+      },
+      "email": "admin@example.com",
+      "expires_at": {
+        "$date": "2026-02-27T15:48:36.657Z"
+      },
+      "otp": "913288"
+    },
+    {
+      "_id": {
+        "$oid": "69a1ba878b7ea53b03527a2e"
+      },
+      "email": "agrimkedia@gmail.com",
+      "expires_at": {
+        "$date": "2026-02-27T16:03:59.436Z"
+      },
+      "otp": "776537"
+    }
+  ]
+}
