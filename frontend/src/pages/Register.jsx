@@ -19,26 +19,40 @@ const Register = () => {
     const from = (location.state && location.state.from) || "/";
 
     useEffect(() => {
-        if (window.google && GOOGLE_CLIENT_ID) {
-            window.google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                callback: handleGoogleResponse,
-                auto_select: false,
-                cancel_on_tap_outside: true,
-                ux_mode: "popup",
-            });
+        let timer;
+        
+        const initializeGoogle = () => {
+            if (window.google && GOOGLE_CLIENT_ID) {
+                window.google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleResponse,
+                    auto_select: false,
+                    cancel_on_tap_outside: true,
+                    ux_mode: "popup",
+                });
 
-            window.google.accounts.id.renderButton(
-                document.getElementById("googleSignUpDiv"),
-                {
-                    theme: "outline",
-                    size: "medium",
-                    width: 200,
-                    shape: "rectangular",
-                    text: "signup_with",
+                const container = document.getElementById("googleSignUpDiv");
+                if (container) {
+                    container.innerHTML = ""; // Clear to prevent duplicates
+                    window.google.accounts.id.renderButton(container, {
+                        theme: "outline",
+                        size: "medium",
+                        width: 200,
+                        shape: "rectangular",
+                        text: "signup_with",
+                    });
                 }
-            );
-        }
+            } else {
+                // If script not loaded yet, retry in 500ms
+                timer = setTimeout(initializeGoogle, 500);
+            }
+        };
+
+        initializeGoogle();
+        
+        return () => {
+            if (timer) clearTimeout(timer);
+        };
     }, []);
 
     async function handleGoogleResponse(response) {
@@ -48,6 +62,7 @@ const Register = () => {
 
             const { data } = await api.post("/google-login", {
                 idToken: response.credential,
+                remember_me: true // Default to true for social signup
             });
 
             localStorage.setItem("token", data.access_token);
@@ -55,7 +70,7 @@ const Register = () => {
             window.dispatchEvent(new Event("authUserChanged"));
             navigate(from, { replace: true });
         } catch (err) {
-            console.log(err);
+            console.error("Google login error:", err);
             setError(
                 err?.response?.data?.message || "Google signup failed. Please try again."
             );

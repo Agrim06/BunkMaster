@@ -22,29 +22,40 @@ function Login() {
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
   useEffect(() => {
-    if (!window.google || !GOOGLE_CLIENT_ID) return;
+    let timer;
 
-    window.google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleGoogleResponse,
-      auto_select: false,
-      cancel_on_tap_outside: true,
-      ux_mode: "popup",
-    });
+    const initializeGoogle = () => {
+      if (window.google && GOOGLE_CLIENT_ID) {
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleGoogleResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+          ux_mode: "popup",
+        });
 
-    const container = document.getElementById("googleSignInDiv");
+        const container = document.getElementById("googleSignInDiv");
+        if (container) {
+          container.innerHTML = ""; // prevents duplicate button render
+          window.google.accounts.id.renderButton(container, {
+            theme: "outline",
+            size: "medium",
+            width: 200,
+            shape: "rectangular",
+            text: "signin_with",
+          });
+        }
+      } else {
+        // If script not loaded yet, retry in 500ms
+        timer = setTimeout(initializeGoogle, 500);
+      }
+    };
 
-    if (container) {
-      container.innerHTML = ""; // prevents duplicate button render
+    initializeGoogle();
 
-      window.google.accounts.id.renderButton(container, {
-        theme: "outline",
-        size: "medium",
-        width: 200,
-        shape: "rectangular",
-        text: "signin_with",
-      });
-    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   async function handleGoogleResponse(response) {

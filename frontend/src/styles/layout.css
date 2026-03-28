@@ -3,7 +3,8 @@
   padding: 24px;
   max-width: 100%;
   min-height: 100vh;
-  margin-top: 75px; /* Default margin for desktop navbar */
+  margin-top: 75px;
+  /* Default margin for desktop navbar */
 }
 
 /* Top Navbar */
@@ -217,7 +218,8 @@
 @media (max-width: 600px) {
   .layout {
     padding: 12px 10px;
-    margin-top: 60px; /* Adjusted for mobile navbar height */
+    margin-top: 60px;
+    /* Adjusted for mobile navbar height */
   }
 
   .navbar {
@@ -242,7 +244,7 @@
     padding: 8px 10px;
     font-size: 11px;
   }
-  
+
   .profile-avatar {
     width: 34px;
     height: 34px;
@@ -259,7 +261,8 @@
 @media (max-width: 450px) {
   .layout {
     padding: 12px 8px;
-    margin-top: 55px; /* Tighter for smaller phones */
+    margin-top: 55px;
+    /* Tighter for smaller phones */
   }
 
   .navbar {
@@ -278,18 +281,20 @@
     font-size: 12px;
   }
 
-  .nav-btn-primary, .logout-btn {
+  .nav-btn-primary,
+  .logout-btn {
     padding: 6px 8px;
     font-size: 10px;
   }
 }
 
 @media (max-width: 360px) {
+
   /* Extra support for very small devices like iPhone SE */
   .navbar-links {
     gap: 8px;
   }
-  
+
   .nav-link {
     font-size: 11px;
   }

@@ -68,7 +68,7 @@ const Navbar = () => {
                     Profile
                   </Link>
                   <button onClick={handleLogout} className="dropdown-item logout-link">
-                   Log Out
+                    Log Out
                   </button>
                 </div>
               )}

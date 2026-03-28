@@ -21,6 +21,18 @@ import os
 
 app = FastAPI(title="BunkTracker API")
 
+@app.middleware("http")
+async def add_coop_header(request: Request, call_next):
+    try:
+        response = await call_next(request)
+        response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
+        return response
+    except Exception as e:
+        # Ensure CORS or other middlewares can still handle exceptions if needed
+        raise e
+
+# CORS must be the OUTERMOST middleware to ensure it catches all responses, 
+# including those from other middlewares or exceptions.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -29,18 +41,13 @@ app.add_middleware(
         "https://bunk-master-2026.vercel.app",
         "https://bunkmasterapp.vercel.app",
     ],
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
-
-@app.middleware("http")
-async def add_coop_header(request: Request, call_next):
-    response = await call_next(request)
-    response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
-    return response
 
 @app.get("/ping")
 def ping():
