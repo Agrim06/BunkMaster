@@ -9,6 +9,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 import Subjects from "./pages/Subjects";
 import Profile from "./pages/Profile";
+import Home from "./pages/Home";
 
 import ProtectedRoute from "./auth/ProtectedRoute";
 import PublicRoute from "./auth/PublicRoute";
@@ -20,6 +21,15 @@ function App() {
       <Routes>
 
         {/* Public routes */}
+
+        <Route
+          path="/"
+          element={
+            <Layout>
+              <Home />
+            </Layout>
+          }
+        />
 
         <Route
           path="/login"
@@ -79,7 +89,7 @@ function App() {
         {/* Protected routes */}
 
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <Layout>

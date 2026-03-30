@@ -46,8 +46,8 @@ const Navbar = () => {
       <div className="navbar-links">
         {isLoggedIn ? (
           <>
-            <Link to="/" className="nav-link">Dashboard</Link>
-            <Link to="/subjects" className="nav-link">My Subjects</Link>
+            <Link to="/dashboard" className="nav-link">Dashboard</Link>
+            <Link to="/subjects" className="nav-link">Subjects</Link>
 
             <div className="user-profile" ref={profileRef}>
               <button

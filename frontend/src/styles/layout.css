@@ -31,6 +31,7 @@
   align-items: center;
   height: 36px;
   transition: transform 0.2s ease;
+  flex-shrink: 0;
 }
 
 .navbar-logo-img {
@@ -52,6 +53,7 @@
   font-size: 16px;
   transition: all 0.2s;
   position: relative;
+  white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -214,63 +216,54 @@
   color: var(--primary);
 }
 
-/* Mobile Responsiveness (Tablets & Large Phones) */
+/* Mobile Responsiveness - Direct Navigation Support */
 @media (max-width: 600px) {
   .layout {
-    padding: 12px 10px;
     margin-top: 60px;
-    /* Adjusted for mobile navbar height */
+    padding: 12px 10px;
   }
 
   .navbar {
-    padding: 8px 16px;
+    padding: 10px 16px;
+    background: rgba(11, 14, 20, 0.95);
   }
 
   .navbar-logo-container {
-    height: 28px;
+    height: 30px;
+    max-width: 140px;
   }
 
   .navbar-links {
-    gap: 14px;
+    gap: 12px;
   }
 
   .nav-link {
-    font-size: 13px;
+    font-size: 14.5px;
     font-weight: 700;
   }
 
   .logout-btn,
   .nav-btn-primary {
-    padding: 8px 10px;
-    font-size: 11px;
+    padding: 8px 14px;
+    font-size: 13px;
   }
 
   .profile-avatar {
     width: 34px;
     height: 34px;
-    font-size: 15px;
-  }
-
-  .profile-dropdown {
-    width: 170px;
-    right: -8px;
+    font-size: 16px;
   }
 }
 
-/* Smartphone Specific Optimizations */
-@media (max-width: 450px) {
-  .layout {
-    padding: 12px 8px;
-    margin-top: 55px;
-    /* Tighter for smaller phones */
-  }
-
+/* iPhone SE & Small Phones Micro-Scaling */
+@media (max-width: 380px) {
   .navbar {
-    padding: 8px 12px;
+    padding: 10px 12px;
   }
 
   .navbar-logo-container {
-    height: 24px;
+    height: 26px;
+    max-width: 120px;
   }
 
   .navbar-links {
@@ -278,24 +271,12 @@
   }
 
   .nav-link {
-    font-size: 12px;
+    font-size: 13px;
   }
 
-  .nav-btn-primary,
-  .logout-btn {
-    padding: 6px 8px;
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 360px) {
-
-  /* Extra support for very small devices like iPhone SE */
-  .navbar-links {
-    gap: 8px;
-  }
-
-  .nav-link {
-    font-size: 11px;
+  .profile-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
   }
 }
