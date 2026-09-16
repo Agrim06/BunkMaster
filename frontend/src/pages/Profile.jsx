@@ -2,120 +2,281 @@ import React, { useState, useEffect } from "react";
 import { getMe } from "../api/auth.api";
 import { getAttendanceSummary } from "../api/attendance.api";
 import { useNavigate } from "react-router-dom";
+import {
+  User,
+  Mail,
+  Calendar,
+  LogOut,
+  TrendingUp,
+  CheckCircle2,
+  AlertTriangle,
+  AlertOctagon,
+  BookOpen,
+  Award
+} from "lucide-react";
 import "../styles/profile.css";
 
 const Profile = () => {
-    const navigate = useNavigate();
-    const [user, setUser] = useState(null);
-    const [summary, setSummary] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [summary, setSummary] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [userData, attendanceData] = await Promise.all([
-                    getMe(),
-                    getAttendanceSummary()
-                ]);
-                setUser(userData);
-                setSummary(Array.isArray(attendanceData) ? attendanceData : (attendanceData?.data || []));
-                setLoading(false);
-            } catch (err) {
-                console.error("Error fetching profile data:", err);
-                setError("Failed to load profile details");
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        navigate("/login");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [userData, attendanceData] = await Promise.all([
+          getMe(),
+          getAttendanceSummary()
+        ]);
+        setUser(userData);
+        setSummary(
+          Array.isArray(attendanceData)
+            ? attendanceData
+            : attendanceData?.data || []
+        );
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching profile data:", err);
+        setError("Failed to load profile details");
+        setLoading(false);
+      }
     };
+    fetchData();
+  }, []);
 
-    if (loading) return <div className="profile-container"><p style={{ textAlign: "center", marginTop: "40px" }}>Loading Profile...</p></div>;
-    if (error) return <div className="profile-container"><p style={{ color: "var(--danger)", textAlign: "center", marginTop: "40px" }}>{error}</p></div>;
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.dispatchEvent(new Event("authUserChanged"));
+    navigate("/login");
+  };
 
-    const totalSubjects = summary.length;
-    const totalAttended = summary.reduce((acc, curr) => acc + (curr.attended_count || 0), 0);
-    const totalMissed = summary.reduce((acc, curr) => acc + (curr.missed_count || 0), 0);
-    const totalClasses = totalAttended + totalMissed;
-    const overallPercentage = totalClasses > 0 ? Math.round((totalAttended / totalClasses) * 100) : 0;
-
-    const getInitials = (name) => {
-        if (!name) return "??";
-        return name.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2);
-    };
-
-    const formatDate = (dateString) => {
-        if (!dateString) return "N/A";
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    };
-
-    const getStatusClass = (status) => {
-        const s = (status || "").toUpperCase().trim();
-        switch (s) {
-            case "SAFE": return "pct-safe";
-            case "BORDERLINE": return "pct-warning";
-            case "SHORTAGE": return "pct-danger";
-            default: return "pct-safe";
-        }
-    };
-
+  if (loading) {
     return (
-        <div className="profile-container">
-            <h1 className="profile-title">My Profile</h1>
-
-            <div className="profile-hero">
-                <div className="profile-avatar-large">
-                    {getInitials(user?.name)}
-                </div>
-                <div className="profile-info">
-                    <h2 className="profile-name">{user?.name}</h2>
-                    <p className="profile-email">{user?.email}</p>
-                    <span className="profile-since">Member since {formatDate(user?.created_at)}</span>
-                </div>
-                <button className="profile-logout-btn" onClick={handleLogout}>
-                    Log out
-                </button>
-            </div>
-
-            <div className="profile-subjects-card">
-                <div className="profile-subjects-header">Subject Breakdown</div>
-                <div className="profile-subject-row header-row">
-                    <span>Subject</span>
-                    <span className="profile-subject-stat">Attended</span>
-                    <span className="profile-subject-stat">Missed</span>
-                    <span className="profile-subject-stat">Goal</span>
-                    <span className="profile-subject-stat" style={{ textAlign: "right" }}>Status</span>
-                </div>
-                {summary.map((s) => {
-                    // Fallback status calculation if backend fails/filters it
-                    const status = s.status || (s.attendance_percentage < s.min_attendance ? "SHORTAGE" : (s.safe_bunk === 0 ? "BORDERLINE" : "SAFE"));
-                    
-                    return (
-                        <div key={s.subject_id} className="profile-subject-row">
-                            <span className="profile-subject-name">{s.subject_name}</span>
-                            <span className="profile-subject-stat" data-label="attended">{s.attended_count}</span>
-                            <span className="profile-subject-stat" data-label="missed">{s.missed_count}</span>
-                            <span className="profile-subject-stat" data-label="goal">{s.min_attendance}%</span>
-                            <span className="profile-subject-stat" style={{ textAlign: "right" }}>
-                                <span className={`profile-pct-badge ${getStatusClass(status)}`}>
-                                    {s.attendance_percentage}%
-                                </span>
-                            </span>
-                        </div>
-                    );
-                })}
-            </div>
+      <div className="profile-container">
+        <div className="profile-loading-state">
+          <div className="loading-spinner"></div>
+          <p>Loading profile...</p>
         </div>
+      </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="profile-container">
+        <div className="profile-error-state">
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const totalSubjects = summary.length;
+  const totalAttended = summary.reduce(
+    (acc, curr) => acc + (curr.attended_count || 0),
+    0
+  );
+  const totalMissed = summary.reduce(
+    (acc, curr) => acc + (curr.missed_count || 0),
+    0
+  );
+  const totalClasses = totalAttended + totalMissed;
+  const overallPercentage =
+    totalClasses > 0 ? Math.round((totalAttended / totalClasses) * 100) : 0;
+
+  const getInitials = (name) => {
+    if (!name) return "ST";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    });
+  };
+
+  const getStatusBadge = (status, pct, minTarget) => {
+    const s = (status || "").toUpperCase().trim();
+    if (s === "SAFE" || pct >= minTarget) {
+      return {
+        className: "badge-safe",
+        label: "SAFE",
+        icon: <CheckCircle2 size={12} />
+      };
+    }
+    if (s === "BORDERLINE") {
+      return {
+        className: "badge-warning",
+        label: "BORDERLINE",
+        icon: <AlertTriangle size={12} />
+      };
+    }
+    return {
+      className: "badge-danger",
+      label: "SHORTAGE",
+      icon: <AlertOctagon size={12} />
+    };
+  };
+
+  return (
+    <div className="profile-container">
+      <div className="profile-header-bar">
+        <h1 className="profile-title">Account Profile</h1>
+      </div>
+
+      {/* Hero Profile Card */}
+      <div className="profile-hero-card">
+        <div className="profile-avatar-large">
+          {getInitials(user?.name)}
+        </div>
+
+        <div className="profile-hero-info">
+          <div className="profile-name-row">
+            <h2 className="profile-user-name">{user?.name || "Student"}</h2>
+            <span className="member-since-pill">
+              <Calendar size={13} />
+              <span>Joined {formatDate(user?.created_at)}</span>
+            </span>
+          </div>
+
+          <div className="profile-email-row">
+            <Mail size={15} />
+            <span>{user?.email}</span>
+          </div>
+        </div>
+
+        <button className="profile-logout-btn" onClick={handleLogout}>
+          <LogOut size={16} />
+          <span>Sign Out</span>
+        </button>
+      </div>
+
+      {/* Academic Summary KPI Row */}
+      <div className="profile-stats-grid">
+        <div className="profile-stat-box">
+          <div className="stat-box-icon primary">
+            <BookOpen size={18} />
+          </div>
+          <div className="stat-box-data">
+            <span className="stat-box-label">Total Courses</span>
+            <span className="stat-box-num">{totalSubjects}</span>
+          </div>
+        </div>
+
+        <div className="profile-stat-box">
+          <div className="stat-box-icon success">
+            <CheckCircle2 size={18} />
+          </div>
+          <div className="stat-box-data">
+            <span className="stat-box-label">Classes Attended</span>
+            <span className="stat-box-num text-success">{totalAttended}</span>
+          </div>
+        </div>
+
+        <div className="profile-stat-box">
+          <div className="stat-box-icon danger">
+            <AlertOctagon size={18} />
+          </div>
+          <div className="stat-box-data">
+            <span className="stat-box-label">Classes Missed</span>
+            <span className="stat-box-num text-danger">{totalMissed}</span>
+          </div>
+        </div>
+
+        <div className="profile-stat-box">
+          <div className="stat-box-icon cyan">
+            <Award size={18} />
+          </div>
+          <div className="stat-box-data">
+            <span className="stat-box-label">Overall Rate</span>
+            <span className="stat-box-num">{overallPercentage}%</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Subject Breakdown Card */}
+      <div className="profile-breakdown-card">
+        <div className="breakdown-card-header">
+          <h3>Subject Breakdown</h3>
+          <span className="breakdown-count-tag">{summary.length} Subjects Tracked</span>
+        </div>
+
+        {summary.length === 0 ? (
+          <div className="breakdown-empty">
+            <p>No subject statistics available yet.</p>
+          </div>
+        ) : (
+          <div className="breakdown-table-wrapper">
+            <div className="breakdown-table-header">
+              <span className="col-subject">Subject</span>
+              <span className="col-stat">Attended</span>
+              <span className="col-stat">Missed</span>
+              <span className="col-stat">Target</span>
+              <span className="col-stat">Current %</span>
+              <span className="col-status">Status</span>
+            </div>
+
+            <div className="breakdown-table-body">
+              {summary.map((s) => {
+                const badge = getStatusBadge(
+                  s.status,
+                  s.attendance_percentage,
+                  s.min_attendance || 75
+                );
+
+                return (
+                  <div key={s.subject_id} className="breakdown-row">
+                    <div className="col-subject">
+                      <span className="subject-item-name">{s.subject_name}</span>
+                      <span className="subject-item-sub">
+                        {s.classes_per_week ? `${s.classes_per_week} classes/wk` : ""}
+                      </span>
+                    </div>
+
+                    <div className="col-stat" data-label="Attended">
+                      <span className="stat-val text-success">{s.attended_count || 0}</span>
+                    </div>
+
+                    <div className="col-stat" data-label="Missed">
+                      <span className="stat-val text-danger">{s.missed_count || 0}</span>
+                    </div>
+
+                    <div className="col-stat" data-label="Target">
+                      <span className="stat-val">{s.min_attendance || 75}%</span>
+                    </div>
+
+                    <div className="col-stat" data-label="Current">
+                      <span className="stat-val font-bold">
+                        {s.attendance_percentage}%
+                      </span>
+                    </div>
+
+                    <div className="col-status" data-label="Status">
+                      <span className={`status-pill ${badge.className}`}>
+                        {badge.icon}
+                        <span>{badge.label}</span>
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Profile;

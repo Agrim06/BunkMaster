@@ -1,30 +1,76 @@
 @import "./variables.css";
 
 /* Global Refinements */
-* {
-    box-sizing: border-box;
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  color: var(--text-primary);
+  background-color: var(--bg-dark);
+}
+
+/* Typography Selection */
+::selection {
+  background: rgba(99, 102, 241, 0.35);
+  color: #fff;
 }
 
 /* Scrollbar Customization */
 ::-webkit-scrollbar {
-    width: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--bg-dark);
+  background: var(--bg-dark);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+}
+
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border: var(--glass-border);
+  border-top: var(--glass-highlight);
+  box-shadow: var(--glass-shadow);
 }

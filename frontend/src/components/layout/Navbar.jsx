@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getMe } from "../../api/auth.api";
-import "../../styles/layout.css"
+import { LayoutDashboard, BookOpen, User, LogOut, ChevronDown, Sparkles, LogIn, UserPlus } from "lucide-react";
+import "../../styles/layout.css";
 import logo from "../../images/logo.svg";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [user, setUser] = useState(null);
   const profileRef = useRef(null);
@@ -15,15 +17,17 @@ const Navbar = () => {
   useEffect(() => {
     if (isLoggedIn) {
       getMe()
-        .then(data => setUser(data))
-        .catch(err => console.error("Error fetching user for navbar:", err));
+        .then((data) => setUser(data))
+        .catch((err) => console.error("Error fetching user for navbar:", err));
     }
   }, [isLoggedIn]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.dispatchEvent(new Event("authUserChanged"));
     navigate("/login");
-  }
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -36,9 +40,18 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
   return (
     <nav className="navbar">
-
       <Link to="/" className="navbar-logo-container">
         <img src={logo} alt="BunkMaster Logo" className="navbar-logo-img" />
       </Link>
@@ -46,29 +59,77 @@ const Navbar = () => {
       <div className="navbar-links">
         {isLoggedIn ? (
           <>
-            <Link to="/dashboard" className="nav-link">Dashboard</Link>
-            <Link to="/subjects" className="nav-link">Subjects</Link>
+            <Link
+              to="/dashboard"
+              className={`nav-link ${location.pathname === "/dashboard" ? "active" : ""}`}
+            >
+              <LayoutDashboard size={17} />
+              <span>Dashboard</span>
+            </Link>
+            <Link
+              to="/subjects"
+              className={`nav-link ${location.pathname === "/subjects" ? "active" : ""}`}
+            >
+              <BookOpen size={17} />
+              <span>Subjects</span>
+            </Link>
 
             <div className="user-profile" ref={profileRef}>
               <button
-                className="profile-avatar"
+                className={`profile-avatar-btn ${isProfileOpen ? "active" : ""}`}
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 aria-label="User Profile"
               >
-                👤
+                <div className="profile-avatar-badge">
+                  {getInitials(user?.name)}
+                </div>
+                <ChevronDown size={14} className={`dropdown-chevron ${isProfileOpen ? "open" : ""}`} />
               </button>
 
               {isProfileOpen && (
                 <div className="profile-dropdown">
                   <div className="dropdown-header">
-                    <span className="dropdown-name">{user?.name || "Loading..."}</span>
-                    <span className="dropdown-email" style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 'normal', opacity: '0.7' }}>{user?.email}</span>
+                    <div className="dropdown-avatar-circle">
+                      {getInitials(user?.name)}
+                    </div>
+                    <div className="dropdown-user-details">
+                      <span className="dropdown-name">{user?.name || "Student"}</span>
+                      <span className="dropdown-email">{user?.email || ""}</span>
+                    </div>
                   </div>
-                  <Link to="/profile" className="dropdown-item profile" onClick={() => setIsProfileOpen(false)}>
-                    Profile
+
+                  <Link
+                    to="/profile"
+                    className="dropdown-item profile"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    <User size={16} />
+                    <span>My Profile</span>
                   </Link>
+
+                  <Link
+                    to="/dashboard"
+                    className="dropdown-item"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    <LayoutDashboard size={16} />
+                    <span>Dashboard</span>
+                  </Link>
+
+                  <Link
+                    to="/subjects"
+                    className="dropdown-item"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    <BookOpen size={16} />
+                    <span>Manage Subjects</span>
+                  </Link>
+
+                  <div className="dropdown-divider"></div>
+
                   <button onClick={handleLogout} className="dropdown-item logout-link">
-                    Log Out
+                    <LogOut size={16} />
+                    <span>Log Out</span>
                   </button>
                 </div>
               )}
@@ -76,9 +137,13 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            <Link to="/login" className="nav-link">Login</Link>
+            <Link to="/login" className="nav-link">
+              <LogIn size={16} />
+              <span>Login</span>
+            </Link>
             <Link to="/register" className="nav-btn-primary">
-              Sign Up
+              <UserPlus size={16} />
+              <span>Sign Up</span>
             </Link>
           </>
         )}
@@ -86,4 +151,5 @@ const Navbar = () => {
     </nav>
   );
 };
+
 export default Navbar;

@@ -111,7 +111,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), remember_me: bool = 
     if remember_me:
         expires = timedelta(days=30)
     else:
-        expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires = timedelta(minutes=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")))
 
     token = create_access_token({"sub": db_user["email"]}, expires_delta=expires)
     return {

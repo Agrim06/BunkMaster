@@ -1,269 +1,367 @@
 import { useEffect, useState } from "react";
-import { getSubjects, addSubject, deleteSubject, updateSubject, resetSubject } from "../api/subject.api"
+import {
+  getSubjects,
+  addSubject,
+  deleteSubject,
+  updateSubject,
+  resetSubject
+} from "../api/subject.api";
 import { downloadAttendanceData } from "../api/attendance.api";
-import "../styles/subjects.css"
+import {
+  BookOpen,
+  Download,
+  Plus,
+  Pencil,
+  RotateCcw,
+  Trash2,
+  Calendar,
+  Clock,
+  Target,
+  Check,
+  X,
+  AlertCircle
+} from "lucide-react";
+import "../styles/subjects.css";
+
+const ALL_DAYS = [
+  { key: "Mon", label: "Mon" },
+  { key: "Tue", label: "Tue" },
+  { key: "Wed", label: "Wed" },
+  { key: "Thu", label: "Thu" },
+  { key: "Fri", label: "Fri" },
+  { key: "Sat", label: "Sat" },
+  { key: "Sun", label: "Sun" }
+];
 
 const Subjects = () => {
-    const [subjects, setSubjects] = useState([]);
-    const [classesPerWeek, setClassesPerWeek] = useState("");
-    const [daysInput, setDaysInput] = useState("");
-    const [name, setName] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [minAttendance, setMinAttendance] = useState("");
-    const [editingId, setEditingId] = useState(null); 
+  const [subjects, setSubjects] = useState([]);
+  const [name, setName] = useState("");
+  const [classesPerWeek, setClassesPerWeek] = useState("");
+  const [selectedDays, setSelectedDays] = useState(["Mon", "Wed", "Fri"]);
+  const [minAttendance, setMinAttendance] = useState("75");
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
-    const loadSubjects = () => {
-        getSubjects()
-            .then((data) => {
-                setSubjects(Array.isArray(data) ? data : []);
-                setLoading(false);
-            })
-            .catch(() => setLoading(false));
-    };
+  const loadSubjects = () => {
+    getSubjects()
+      .then((data) => {
+        setSubjects(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  };
 
-    useEffect(() => {
-        loadSubjects();
-    }, []);
+  useEffect(() => {
+    loadSubjects();
+  }, []);
 
-    const handleDownload = async () => {
-        try {
-            await downloadAttendanceData();
-        } catch (err) {
-            alert("Failed to download attendance data. Please try again.");
-        }
-    };
-
-    const handleAddSubject = async (e) => {
-        e.preventDefault();
-
-        console.log("Sending subject:", { name });
-
-        if (!name.trim()) return;
-
-        const classesInt = parseInt(classesPerWeek, 10);
-        if (isNaN(classesInt) || classesInt <= 0) {
-            alert("Please enter a valid number for classes per week.");
-            return;
-        }
-
-        try {
-            const parsedDays = daysInput.split(",").map(d => d.trim()).filter(d => Boolean(d));
-
-            const subjectPayload = {
-                name,
-                classes_per_week: parseInt(classesPerWeek, 10),
-                days: parsedDays,
-                min_attendance: minAttendance ? parseInt(minAttendance, 10) : 75
-            };
-
-            if(editingId){
-                await updateSubject(editingId, subjectPayload);
-            }
-            else{
-                await addSubject(subjectPayload);
-            }
-
-
-            setName("");
-            setClassesPerWeek("");
-            setDaysInput("");
-            setEditingId(null);
-            setMinAttendance("");
-
-            loadSubjects();
-
-        } catch (error) {
-            console.error("Error saving subject:", error);
-            alert("Error saving subject updates !")
-        }
-    };
-
-    const handleEditClick = (subject) => {
-        setEditingId(subject.id || subject._id);
-        setName(subject.name);
-        setClassesPerWeek(subject.classes_per_week.toString());
-        setDaysInput(subject.days ? subject.days.join(", ") : "");
-        setMinAttendance(subject.min_attendance ? subject.min_attendance.toString() : "75");
-        
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    const handleDeleteSubject = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this permanently?")) return;
-
-        try {
-            await deleteSubject(id);
-            setSubjects(subjects.filter((s) => (s._id || s.id !== id)));
-        } catch (error) {
-            console.error("Error deleting subject:", error);
-            alert("Error deleting subject!");
-        }
-
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      await downloadAttendanceData();
+    } catch (err) {
+      alert("Failed to download attendance data. Please try again.");
+    } finally {
+      setIsDownloading(false);
     }
+  };
 
-    const handleResetSubject = async(id) =>{
-        if(!window.confirm("Reset all attendance for this subject? This action cannot be undone !")) return;
-        try{
-            await resetSubject(id);
-            alert("Subject data has been reset!");
-            loadSubjects();
-        }catch(error){
-            console.error("Error resetting subjects:", error);
-            alert("Error resetting subject!");
-        }
-    }
-
-    return (
-        <div className="subjects-container">
-            <div className="subjects-header">
-                <h1 className="subjects-title">Manage your subjects</h1>
-                <button 
-                    className="download-btn" 
-                    onClick={handleDownload}
-                >
-                    📥 Download CSV
-                </button>
-            </div>
-
-            <div className="subjects-content">
-                <form onSubmit={handleAddSubject} className="add-subject-form">
-                    <div className="form-group">
-                        <div className="form-grid">
-                            <div className="input-wrapper full-width">
-                                <label>Subject Name</label>
-                                <input
-                                    type="text"
-                                    placeholder="Science"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    required
-                                />
-                            </div>
-
-                            <div className="input-wrapper">
-                                <label>Classes per week</label>
-                                <input
-                                    type="number"
-                                    placeholder="3"
-                                    value={classesPerWeek}
-                                    onChange={(e) => setClassesPerWeek(e.target.value)}
-                                    min="1"
-                                    required
-                                />
-                            </div>
-
-                            <div className="input-wrapper">
-                                <label>Target Attendance</label>
-                                <input
-                                    type="number"
-                                    placeholder="75%"
-                                    value={minAttendance}
-                                    onChange={(e) => setMinAttendance(e.target.value)}
-                                    min="0"
-                                    max="100"
-                                />
-                            </div>
-
-                            <div className="input-wrapper full-width">
-                                <label>Days Schedule</label>
-                                <input
-                                    type="text"
-                                    placeholder="Mon, Wed, Fri"
-                                    value={daysInput}
-                                    onChange={(e) => setDaysInput(e.target.value)}
-                                    required
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
-                        <button type="submit" style={{ flex: 1 }}>
-                            {editingId ? "Update Subject" : "Add Subject"}
-                        </button>
-                        
-                        {editingId && (
-                            <button 
-                                type="button" 
-                                className="cancel-btn"
-                                onClick={() => {
-                                    setEditingId(null);
-                                    setName("");
-                                    setClassesPerWeek("");
-                                    setDaysInput("");
-                                    setMinAttendance("");
-                                }}
-                            >
-                                Cancel
-                            </button>
-                        )}
-                    </div>
-                </form>
-
-                <div className="subjects-list">
-                    {loading ? (
-                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
-                            <p style={{ fontSize: '18px', color: 'var(--text-secondary)', fontWeight: '600' }}>Loading subjects...</p>
-                        </div>
-                    ) : subjects.length === 0 ? (
-                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
-                            <p style={{ fontSize: '18px', color: 'var(--text-secondary)', fontWeight: '600' }}>No subjects found. Add a subject to get started.</p>
-                        </div>
-                    ) : (
-                        subjects.map((s) => (
-                            <div key={s._id || s.id} className="subject-item">
-                                <div className="subject-info">
-                                    <h3 className="subject-name-display">{s.name}</h3>
-
-                                    <div className="subject-details">
-                                        <div className="detail-badge">
-                                            <span className="detail-icon">📅</span>
-                                            {s.classes_per_week} classes/week
-                                        </div>
-
-                                        {s.days && s.days.length > 0 && (
-                                            <div className="detail-badge days-badge">
-                                                <span className="detail-icon">🕒</span>
-                                                {s.days.join(", ")}
-                                            </div>
-                                        )}
-
-                                        {s.min_attendance && (
-                                            <div className="detail-badge target-badge">
-                                                <span className="detail-icon">🎯</span>
-                                                Target: {s.min_attendance}% 
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                                <div style={{ display: "flex", gap: "8px" }}>
-                                    <button 
-                                        onClick={() => handleEditClick(s)} 
-                                        className="edit-btn" 
-                                        title="Edit Subject"
-                                    >
-                                        ✏️
-                                    </button>
-                                    <button
-                                        onClick={() => handleResetSubject(s._id || s.id)}
-                                        className="reset-btn"
-                                        title="Reset Attendance"
-                                    >
-                                        ↺
-                                    </button>
-                                    <button onClick={() => handleDeleteSubject(s._id || s.id)} className="delete-btn" title="Delete Subject">
-                                        ✖
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </div>
-            </div>
-        </div>
+  const toggleDay = (dayKey) => {
+    setSelectedDays((prev) =>
+      prev.includes(dayKey)
+        ? prev.filter((d) => d !== dayKey)
+        : [...prev, dayKey]
     );
+  };
+
+  const handleAddSubject = async (e) => {
+    e.preventDefault();
+
+    if (!name.trim()) return;
+
+    const classesInt = parseInt(classesPerWeek, 10);
+    if (isNaN(classesInt) || classesInt <= 0) {
+      alert("Please enter a valid number for classes per week.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const subjectPayload = {
+        name: name.trim(),
+        classes_per_week: classesInt,
+        days: selectedDays,
+        min_attendance: minAttendance ? parseInt(minAttendance, 10) : 75
+      };
+
+      if (editingId) {
+        await updateSubject(editingId, subjectPayload);
+      } else {
+        await addSubject(subjectPayload);
+      }
+
+      resetForm();
+      loadSubjects();
+    } catch (error) {
+      console.error("Error saving subject:", error);
+      alert("Error saving subject. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setName("");
+    setClassesPerWeek("");
+    setSelectedDays(["Mon", "Wed", "Fri"]);
+    setMinAttendance("75");
+    setEditingId(null);
+  };
+
+  const handleEditClick = (subject) => {
+    setEditingId(subject.id || subject._id);
+    setName(subject.name || "");
+    setClassesPerWeek(subject.classes_per_week ? subject.classes_per_week.toString() : "3");
+    setSelectedDays(Array.isArray(subject.days) ? subject.days : []);
+    setMinAttendance(subject.min_attendance ? subject.min_attendance.toString() : "75");
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDeleteSubject = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this subject permanently?")) return;
+
+    try {
+      await deleteSubject(id);
+      setSubjects((prev) => prev.filter((s) => (s._id || s.id) !== id));
+    } catch (error) {
+      console.error("Error deleting subject:", error);
+      alert("Error deleting subject!");
+    }
+  };
+
+  const handleResetSubject = async (id) => {
+    if (!window.confirm("Reset all attendance for this subject? This cannot be undone!")) return;
+    try {
+      await resetSubject(id);
+      loadSubjects();
+    } catch (error) {
+      console.error("Error resetting subjects:", error);
+      alert("Error resetting subject!");
+    }
+  };
+
+  return (
+    <div className="subjects-container">
+      {/* Top Header */}
+      <div className="subjects-header">
+        <div>
+          <h1 className="subjects-title">Manage Subjects</h1>
+          <p className="subjects-subtitle">
+            Configure course subjects, schedule days, and minimum target thresholds
+          </p>
+        </div>
+
+        <button
+          className="download-btn"
+          onClick={handleDownload}
+          disabled={isDownloading}
+        >
+          <Download size={16} />
+          <span>{isDownloading ? "Downloading..." : "Export CSV"}</span>
+        </button>
+      </div>
+
+      {/* Main Workspace: Form & List */}
+      <div className="subjects-content">
+        {/* Left / Form Panel */}
+        <div className="subject-form-card">
+          <div className="form-card-header">
+            <div className="form-icon-pill">
+              {editingId ? <Pencil size={18} /> : <Plus size={18} />}
+            </div>
+            <div>
+              <h3>{editingId ? "Edit Subject" : "Add New Subject"}</h3>
+              <p>{editingId ? "Update subject configuration" : "Setup course schedule & target"}</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleAddSubject} className="add-subject-form">
+            <div className="form-group-field">
+              <label>Subject Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Data Structures & Algorithms"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-row-dual">
+              <div className="form-group-field">
+                <label>Classes per Week</label>
+                <input
+                  type="number"
+                  placeholder="e.g. 4"
+                  value={classesPerWeek}
+                  onChange={(e) => setClassesPerWeek(e.target.value)}
+                  min="1"
+                  max="20"
+                  required
+                />
+              </div>
+
+              <div className="form-group-field">
+                <label>Target Attendance (%)</label>
+                <input
+                  type="number"
+                  placeholder="75"
+                  value={minAttendance}
+                  onChange={(e) => setMinAttendance(e.target.value)}
+                  min="1"
+                  max="100"
+                />
+              </div>
+            </div>
+
+            {/* Schedule Day Selector */}
+            <div className="form-group-field">
+              <label>Schedule Days</label>
+              <div className="day-selector-pills">
+                {ALL_DAYS.map((day) => {
+                  const isSelected = selectedDays.includes(day.key);
+                  return (
+                    <button
+                      type="button"
+                      key={day.key}
+                      className={`day-pill ${isSelected ? "selected" : ""}`}
+                      onClick={() => toggleDay(day.key)}
+                    >
+                      {day.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="form-actions-row">
+              <button
+                type="submit"
+                className="btn-submit-subject"
+                disabled={isSubmitting}
+              >
+                {editingId ? <Check size={16} /> : <Plus size={16} />}
+                <span>{editingId ? "Update Subject" : "Add Subject"}</span>
+              </button>
+
+              {editingId && (
+                <button
+                  type="button"
+                  className="btn-cancel-edit"
+                  onClick={resetForm}
+                >
+                  <X size={16} />
+                  <span>Cancel</span>
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* Right / Subjects List Panel */}
+        <div className="subjects-list-panel">
+          <div className="list-panel-header">
+            <h3>Configured Subjects ({subjects.length})</h3>
+          </div>
+
+          {loading ? (
+            <div className="subjects-loading-state">
+              <div className="loading-spinner"></div>
+              <p>Loading course subjects...</p>
+            </div>
+          ) : subjects.length === 0 ? (
+            <div className="subjects-empty-state">
+              <BookOpen size={36} className="empty-icon" />
+              <h4>No subjects added yet</h4>
+              <p>Fill out the form on the left to add your first subject.</p>
+            </div>
+          ) : (
+            <div className="subjects-items-grid">
+              {subjects.map((s) => {
+                const subId = s._id || s.id;
+                const isEditing = editingId === subId;
+
+                return (
+                  <div
+                    key={subId}
+                    className={`subject-card-item ${isEditing ? "editing" : ""}`}
+                  >
+                    <div className="subject-item-top">
+                      <div className="subject-title-area">
+                        <h4 className="subject-title">{s.name}</h4>
+                      </div>
+
+                      <div className="subject-actions-group">
+                        <button
+                          onClick={() => handleEditClick(s)}
+                          className="action-icon-btn edit"
+                          title="Edit Subject"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => handleResetSubject(subId)}
+                          className="action-icon-btn reset"
+                          title="Reset Attendance"
+                        >
+                          <RotateCcw size={15} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSubject(subId)}
+                          className="action-icon-btn delete"
+                          title="Delete Subject"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="subject-badges-row">
+                      <div className="subject-chip">
+                        <Calendar size={13} />
+                        <span>{s.classes_per_week || 0} classes/wk</span>
+                      </div>
+
+                      <div className="subject-chip target">
+                        <Target size={13} />
+                        <span>Target: {s.min_attendance || 75}%</span>
+                      </div>
+                    </div>
+
+                    {s.days && s.days.length > 0 && (
+                      <div className="subject-schedule-days">
+                        <Clock size={12} className="clock-icon" />
+                        <div className="schedule-day-tags">
+                          {s.days.map((day, idx) => (
+                            <span key={idx} className="day-tag">
+                              {day}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Subjects;
-
-
-

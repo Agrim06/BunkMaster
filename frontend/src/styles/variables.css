@@ -1,56 +1,104 @@
 :root {
-  /* --- Colors: Nebula Theme --- */
-  --bg-dark: #0B0E14;
-  /* Void Black */
-  --bg-card: rgba(20, 25, 35, 0.6);
-  /* Translucent Deep Blue */
+  /* --- Luxury Obsidian / Slate Canvas Surfaces --- */
+  --bg-dark: #090d16;
+  --bg-surface: #0f172a;
+  --bg-surface-elevated: #151f36;
+  --bg-surface-glass: rgba(15, 23, 42, 0.75);
+  --bg-card: rgba(17, 24, 39, 0.7);
+  --bg-card-hover: rgba(26, 36, 58, 0.85);
+  --bg-input: rgba(11, 15, 25, 0.7);
+  --bg-input-focus: rgba(15, 23, 42, 0.95);
 
-  --text-primary: #f0f6fc;
-  --text-secondary: #8b949e;
+  /* --- Typography --- */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #090d16;
 
-  /* --- Accents --- */
-  --primary: #00f2ea;
-  /* Neon Cyan */
-  --primary-glow: rgba(0, 242, 234, 0.4);
+  /* --- Brand Accents (Electric Indigo & Cyan) --- */
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-active: #4338ca;
+  --primary-glow: rgba(99, 102, 241, 0.35);
+  --primary-subtle: rgba(99, 102, 241, 0.12);
+  --primary-border: rgba(99, 102, 241, 0.25);
+  --primary-text: #a5b4fc;
 
-  --secondary: #ff0050;
-  /* Neon Pink */
-  --secondary-glow: rgba(255, 0, 80, 0.4);
+  --accent-cyan: #06b6d4;
+  --accent-cyan-subtle: rgba(6, 182, 212, 0.12);
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #4f46e5 0%, #0891b2 100%);
 
-  --success: #00ff9d;
-  /* Neon Green */
-  --danger: #ff2a6d;
-  /* Cyber Red */
-  --warning: #ffcc00;
-  /* Cyber Yellow */
+  --secondary: #0ea5e9;
+  --secondary-hover: #0284c7;
+  --secondary-subtle: rgba(14, 165, 233, 0.12);
 
-  /* --- Glassmorphism (Sharpened) --- */
-  --glass-border: 1px solid rgba(255, 255, 255, 0.12);
-  --glass-highlight: 1px solid rgba(255, 255, 255, 0.2);
-  --glass-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.4);
-  --backdrop-blur: blur(12px);
+  /* --- Semantic Status Colors --- */
+  --success: #10b981;
+  --success-hover: #059669;
+  --success-subtle: rgba(16, 185, 129, 0.12);
+  --success-border: rgba(16, 185, 129, 0.28);
+  --success-text: #34d399;
+  --success-glow: rgba(16, 185, 129, 0.35);
 
-  /* --- Layout (Sharper) --- */
-  --radius-lg: 12px;
-  --radius-md: 8px;
-  --radius-sm: 4px;
+  --warning: #f59e0b;
+  --warning-hover: #d97706;
+  --warning-subtle: rgba(245, 158, 11, 0.12);
+  --warning-border: rgba(245, 158, 11, 0.28);
+  --warning-text: #fbbf24;
+  --warning-glow: rgba(245, 158, 11, 0.35);
+
+  --danger: #f43f5e;
+  --danger-hover: #e11d48;
+  --danger-subtle: rgba(244, 63, 94, 0.12);
+  --danger-border: rgba(244, 63, 94, 0.28);
+  --danger-text: #fb7185;
+  --danger-glow: rgba(244, 63, 94, 0.35);
+
+  /* --- Glassmorphism & Precision Hairlines --- */
+  --border-subtle: 1px solid rgba(255, 255, 255, 0.07);
+  --border-medium: 1px solid rgba(255, 255, 255, 0.12);
+  --border-highlight: 1px solid rgba(255, 255, 255, 0.18);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-highlight: 1px solid rgba(255, 255, 255, 0.16);
+  --glass-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --card-shadow-hover: 0 20px 40px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.3);
+  --backdrop-blur: blur(18px);
+
+  /* --- Radii --- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* --- Transitions --- */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 body {
   background-color: var(--bg-dark);
   background-image:
-    radial-gradient(circle at 15% 50%, rgba(0, 242, 234, 0.04), transparent 20%),
-    radial-gradient(circle at 85% 30%, rgba(255, 0, 80, 0.04), transparent 20%);
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.12), transparent 70%),
+    radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.06), transparent 50%),
+    radial-gradient(circle at 0% 50%, rgba(16, 185, 129, 0.03), transparent 40%);
   background-attachment: fixed;
   color: var(--text-primary);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 #root {
   max-width: 100%;
   min-height: 100vh;
-  padding-bottom: 20px;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }

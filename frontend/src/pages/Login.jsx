@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "../api/axios";
 import { loginUser } from "../api/auth.api";
+import { Mail, Lock, LogIn, AlertCircle } from "lucide-react";
 import "../styles/auth.css";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -39,14 +40,13 @@ function Login() {
           container.innerHTML = ""; // prevents duplicate button render
           window.google.accounts.id.renderButton(container, {
             theme: "outline",
-            size: "medium",
-            width: 200,
-            shape: "rectangular",
+            size: "large",
+            width: 280,
+            shape: "pill",
             text: "signin_with",
           });
         }
       } else {
-        // If script not loaded yet, retry in 500ms
         timer = setTimeout(initializeGoogle, 500);
       }
     };
@@ -73,13 +73,12 @@ function Login() {
       storage.setItem("user", JSON.stringify(data.user));
 
       window.dispatchEvent(new Event("authUserChanged"));
-
       navigate(from, { replace: true });
     } catch (err) {
       console.log(err);
       setError(
         err?.response?.data?.message ||
-          "Google login failed. Please try again."
+        "Google login failed. Please try again."
       );
     } finally {
       setLoading(false);
@@ -110,13 +109,12 @@ function Login() {
       storage.setItem("user", JSON.stringify(data.user));
 
       window.dispatchEvent(new Event("authUserChanged"));
-
       navigate(from, { replace: true });
     } catch (err) {
       console.error(err);
       setError(
         err?.response?.data?.message ||
-          "Login failed. Please check your credentials."
+        "Login failed. Please check your credentials."
       );
     } finally {
       setLoading(false);
@@ -128,28 +126,37 @@ function Login() {
       <div className="bg-blob"></div>
       <div className="bg-blob bg-blob-2"></div>
       <div className="bg-blob bg-blob-3"></div>
+
       <div className="auth-card">
-        <h2 className="auth-title">Welcome Back!</h2>
-        <p className="auth-subtitle">Log in to your account</p>
+        <div className="auth-header">
+          <h2 className="auth-title">Welcome Back</h2>
+          <p className="auth-subtitle">Sign in to track your attendance and calculate bunks</p>
+        </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          <input
-            className="auth-input"
-            type="email"
-            placeholder="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <div className="auth-input-group">
+            <input
+              className="auth-input"
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Mail size={18} className="auth-input-icon" />
+          </div>
 
-          <input
-            className="auth-input"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="auth-input-group">
+            <input
+              className="auth-input"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <Lock size={18} className="auth-input-icon" />
+          </div>
 
           <div className="auth-options">
             <label className="remember-me">
@@ -158,32 +165,28 @@ function Login() {
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
               />
-              Remember Me
+              <span>Remember me</span>
             </label>
-            <Link to="/forgot-password" style={{ color: 'var(--text-secondary)', fontSize: '13px', textDecoration: 'none', fontWeight: '500', opacity: 0.8 }}>
+            <Link to="/forgot-password" className="forgot-link">
               Forgot Password?
             </Link>
           </div>
 
           {error && (
-            <p
-              style={{
-                color: "var(--danger)",
-                textAlign: "center",
-                fontSize: "14px",
-              }}
-            >
-              {error}
-            </p>
+            <div className="auth-error">
+              <AlertCircle size={16} />
+              <span>{error}</span>
+            </div>
           )}
 
           <button className="auth-button" type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Log In"}
+            <LogIn size={16} />
+            <span>{loading ? "Signing in..." : "Sign In"}</span>
           </button>
         </form>
 
         <div className="auth-divider">
-          <span>or</span>
+          <span>or continue with</span>
         </div>
 
         {/* Google Sign In */}
@@ -193,7 +196,7 @@ function Login() {
 
         <div className="auth-link">
           Don't have an account?
-          <Link to="/register"> Sign Up</Link>
+          <Link to="/register">Create one</Link>
         </div>
       </div>
     </div>

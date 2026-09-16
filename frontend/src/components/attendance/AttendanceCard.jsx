@@ -1,133 +1,262 @@
 import { useState } from "react";
 import { markAttendance } from "../../api/attendance.api";
 import { resetSubject } from "../../api/subject.api";
-import CalendarView from "./CalendarView"
+import CalendarView from "./CalendarView";
+import {
+  CheckCircle2,
+  AlertTriangle,
+  AlertOctagon,
+  RotateCcw,
+  Check,
+  X,
+  Calendar,
+  Sparkles,
+  TrendingUp,
+  Clock
+} from "lucide-react";
 
 const AttendanceCard = ({ subject, onUpdate }) => {
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [isMarking, setIsMarking] = useState(false);
 
-    const getStatusInfo = (status) => {
-        switch (status) {
-            case "SAFE": return { class: "status-safe", icon: "🟢" };
-            case "BORDERLINE": return { class: "status-warning", icon: "⚠️" };
-            case "SHORTAGE": return { class: "status-danger", icon: "🚨" };
-            default: return { class: "status-safe", icon: "•" };
-        }
-    };
+  const getStatusConfig = (status) => {
+    switch (status) {
+      case "SAFE":
+        return {
+          class: "status-safe",
+          label: "SAFE",
+          icon: <CheckCircle2 size={13} />
+        };
+      case "BORDERLINE":
+        return {
+          class: "status-warning",
+          label: "BORDERLINE",
+          icon: <AlertTriangle size={13} />
+        };
+      case "SHORTAGE":
+        return {
+          class: "status-danger",
+          label: "SHORTAGE",
+          icon: <AlertOctagon size={13} />
+        };
+      default:
+        return {
+          class: "status-safe",
+          label: "SAFE",
+          icon: <CheckCircle2 size={13} />
+        };
+    }
+  };
 
-    const statusInfo = getStatusInfo(subject.status);
+  const statusConfig = getStatusConfig(subject.status);
 
-    const handleAttendance = async (status) => {
-        try {
-            await markAttendance(subject.subject_id, status, new Date());
-            if (onUpdate) onUpdate();
-        } catch (error) {
-            console.error("Error marking attendance:", error);
-        }
-    };
+  const handleAttendance = async (status) => {
+    if (isMarking) return;
+    setIsMarking(true);
+    try {
+      await markAttendance(subject.subject_id, status, new Date());
+      if (onUpdate) onUpdate();
+    } catch (error) {
+      console.error("Error marking attendance:", error);
+    } finally {
+      setIsMarking(false);
+    }
+  };
 
-    const handleReset = async () => {
-        if (!window.confirm(`Reset all attendance for ${subject.subject_name}? This cannot be undone!`)) return;
-        try {
-            await resetSubject(subject.subject_id);
-            if (onUpdate) onUpdate();
-        } catch (error) {
-            console.error("Error resetting subject:", error);
-        }
-    };
+  const handleReset = async () => {
+    if (!window.confirm(`Reset all attendance for "${subject.subject_name}"? This cannot be undone.`)) return;
+    try {
+      await resetSubject(subject.subject_id);
+      if (onUpdate) onUpdate();
+    } catch (error) {
+      console.error("Error resetting subject:", error);
+    }
+  };
 
-    const [showCalendar, setShowCalendar] = useState(false);
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const todayName = daysOfWeek[new Date().getDay()].toLowerCase();
 
-    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const todayName = daysOfWeek[new Date().getDay()].toLowerCase();
+  const validDays = Array.isArray(subject.days)
+    ? subject.days.filter((d) => typeof d === "string" && d.trim() !== "")
+    : [];
 
-    const validDays = Array.isArray(subject.days)
-        ? subject.days.filter(d => typeof d === 'string' && d.trim() !== '')
-        : [];
-
-    const hasSchedule = validDays.length > 0;
-    const isClassToday = !hasSchedule || validDays.some(d => {
-        const dayStr = d.toLowerCase().trim();
-        return dayStr.startsWith(todayName) || todayName.startsWith(dayStr);
+  const hasSchedule = validDays.length > 0;
+  const isClassToday =
+    !hasSchedule ||
+    validDays.some((d) => {
+      const dayStr = d.toLowerCase().trim();
+      return dayStr.startsWith(todayName) || todayName.startsWith(dayStr);
     });
 
-    return (
-        <div className="attendance-card">
-            <div className="card-header">
-                <div>
-                    <h3 className="subject-name">{subject.subject_name}</h3>
-                    <div className="percent-label" style={{ marginTop: "6px" }}>Target: {subject.min_attendance || 75}%</div>
-                </div>
-                <div className="card-header-right">
-                    <div className={`status-badge ${statusInfo.class}`}>
-                        {statusInfo.icon} {subject.status}
-                    </div>
-                    <button className="card-reset-btn" onClick={handleReset} title="Reset Attendance">
-                        ↺
-                    </button>
-                </div>
-            </div>
+  const totalClasses = (subject.attended_count || 0) + (subject.missed_count || 0);
+  const targetPct = subject.min_attendance || 75;
+  const currentPct = subject.attendance_percentage ?? (totalClasses > 0 ? Math.round((subject.attended_count / totalClasses) * 100) : 0);
 
-            <div className="percentage-display">
-                <div className="big-percent">{subject.attendance_percentage}%</div>
-                <div className="attendance-bunk">
-                    {subject.safe_bunk > 0 ? ( 
-                         subject.safe_bunk > 1 ?(
-                             <span style={{ color: "var(--success)" }}>You can bunk <strong>{subject.safe_bunk}</strong> classes!</span>)
-                             : (<span style={{ color: "var(--success)" }}>You can bunk <strong>{subject.safe_bunk}</strong> class!</span>) 
-                    ) : (
-                        <span style={{ color: "var(--danger)" }}>Don't miss any more classes!</span>
-                    )}
-                </div>
-            </div>
+  // Calculate classes needed if shortage
+  const getBunkGuidance = () => {
+    if (subject.safe_bunk > 0) {
+      return {
+        type: "safe",
+        text: (
+          <span>
+            You can safely bunk <strong>{subject.safe_bunk}</strong> {subject.safe_bunk === 1 ? "class" : "classes"}!
+          </span>
+        ),
+        icon: <CheckCircle2 size={14} />
+      };
+    }
 
-            <div className="stats-row">
-                <div className="stat-item">
-                    <span>Attended</span>
-                    <span className="stat-value">{subject.attended_count}</span>
-                </div>
-                <div className="stat-item">
-                    <span>Missed</span>
-                    <span className="stat-value">{subject.missed_count}</span>
-                </div>
-                <div className="stat-item">
-                    <span>Total</span>
-                    <span className="stat-value">{subject.attended_count + subject.missed_count}</span>
-                </div>
-            </div>
+    if (currentPct >= targetPct) {
+      return {
+        type: "warning",
+        text: <span>On the threshold! Don't miss next class.</span>,
+        icon: <AlertTriangle size={14} />
+      };
+    }
 
-            <div style={{ minHeight: "50px", marginBottom: "8px" }}>
-                {!isClassToday ? (
-                    <div className="no-class-msg" style={{ textAlign: "center", color: "var(--warning)", fontSize: "0.9rem", backgroundColor: "rgba(255, 204, 0, 0.1)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255, 204, 0, 0.2)" }}>
-                        🎉 No classes scheduled for {subject.subject_name} today!
-                    </div>
-                ) : (
-                    <div className="class-today-msg" style={{ textAlign: "center", color: "var(--primary)", fontSize: "0.9rem", backgroundColor: "rgba(0, 242, 234, 0.1)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(0, 242, 234, 0.2)" }}>
-                        📅 You have {subject.subject_name} class today!
-                    </div>
-                )}
-            </div>
-
-            <div className="action-buttons">
-                <button className="btn-attend" onClick={() => handleAttendance(true)}>
-                    ✅ Present
-                </button>
-                <button className="btn-miss" onClick={() => handleAttendance(false)}>
-                    ❌ Absent
-                </button>
-                <button className="btn-history" onClick={() => setShowCalendar(!showCalendar)}>
-                    {showCalendar ? "Hide Calendar" : "View History"}
-                </button>
-            </div>
-            {showCalendar && (
-                <CalendarView
-                    subjectId={subject.subject_id}
-                    onClose={() => setShowCalendar(false)}
-                    onUpdate={onUpdate}
-                />
-            )}
-
-        </div>
+    // Shortage formula: (target * total - 100 * attended) / (100 - target)
+    const needed = Math.max(
+      1,
+      Math.ceil((targetPct * totalClasses - 100 * (subject.attended_count || 0)) / (100 - targetPct))
     );
+
+    return {
+      type: "danger",
+      text: (
+        <span>
+          Attend next <strong>{needed}</strong> {needed === 1 ? "class" : "classes"} to recover!
+        </span>
+      ),
+      icon: <TrendingUp size={14} />
+    };
+  };
+
+  const guidance = getBunkGuidance();
+
+  return (
+    <div className="attendance-card">
+      <div className="card-header">
+        <div className="card-header-left">
+          <h3 className="subject-name" title={subject.subject_name}>
+            {subject.subject_name}
+          </h3>
+          <div className="target-badge-pill">
+            Target: <strong>{targetPct}%</strong>
+          </div>
+        </div>
+
+        <div className="card-header-right">
+          <div className={`status-chip ${statusConfig.class}`}>
+            <span className="status-pulse-dot"></span>
+            {statusConfig.label}
+          </div>
+          <button
+            className="card-reset-icon-btn"
+            onClick={handleReset}
+            title="Reset Attendance History"
+          >
+            <RotateCcw size={15} />
+          </button>
+        </div>
+      </div>
+
+      {/* Main Percentage & Progress Bar Block */}
+      <div className="card-progress-section">
+        <div className="card-percentage-row">
+          <div className="percentage-numeric">
+            <span className="big-percent">{currentPct}%</span>
+            <span className="percent-unit">Attendance</span>
+          </div>
+
+          <div className={`bunk-guidance-pill ${guidance.type}`}>
+            {guidance.icon}
+            {guidance.text}
+          </div>
+        </div>
+
+        <div className="progress-track">
+          <div
+            className={`progress-fill ${guidance.type}`}
+            style={{ width: `${Math.min(100, Math.max(0, currentPct))}%` }}
+          ></div>
+          <div
+            className="target-threshold-marker"
+            style={{ left: `${Math.min(100, Math.max(0, targetPct))}%` }}
+            title={`Target: ${targetPct}%`}
+          ></div>
+        </div>
+      </div>
+
+      {/* Stats Counter Row */}
+      <div className="stats-row">
+        <div className="stat-item">
+          <span className="stat-label">Attended</span>
+          <span className="stat-value text-success">{subject.attended_count || 0}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-label">Missed</span>
+          <span className="stat-value text-danger">{subject.missed_count || 0}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-label">Total Held</span>
+          <span className="stat-value">{totalClasses}</span>
+        </div>
+      </div>
+
+      {/* Today's Schedule Indicator */}
+      <div className="schedule-status-banner">
+        {isClassToday ? (
+          <div className="schedule-today-pill">
+            <Clock size={14} />
+            <span>Class scheduled for today</span>
+          </div>
+        ) : (
+          <div className="schedule-off-pill">
+            <Calendar size={14} />
+            <span>No class scheduled today</span>
+          </div>
+        )}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="action-buttons">
+        <button
+          className="btn-attend"
+          onClick={() => handleAttendance(true)}
+          disabled={isMarking}
+        >
+          <Check size={16} />
+          <span>Present</span>
+        </button>
+
+        <button
+          className="btn-miss"
+          onClick={() => handleAttendance(false)}
+          disabled={isMarking}
+        >
+          <X size={16} />
+          <span>Absent</span>
+        </button>
+
+        <button
+          className={`btn-history ${showCalendar ? "active" : ""}`}
+          onClick={() => setShowCalendar(!showCalendar)}
+        >
+          <Calendar size={15} />
+          <span>{showCalendar ? "Close" : "Calendar"}</span>
+        </button>
+      </div>
+
+      {showCalendar && (
+        <CalendarView
+          subjectId={subject.subject_id}
+          subjectName={subject.subject_name}
+          onClose={() => setShowCalendar(false)}
+          onUpdate={onUpdate}
+        />
+      )}
+    </div>
+  );
 };
 
 export default AttendanceCard;
