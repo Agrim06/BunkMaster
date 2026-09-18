@@ -41,37 +41,72 @@ const CalendarView = ({ subjectId, subjectName, onClose, onUpdate }) => {
 
   const handleMark = async (status) => {
     if (!selectedDate) return;
+    const targetDate = selectedDate;
+    const previousHistory = [...history];
+
+    // 1. INSTANT (0ms): Close popup immediately
+    setSelectedDate(null);
+
+    // 2. INSTANT (0ms): Optimistically update calendar tile in local state
+    setHistory((prev) => {
+      const filtered = prev.filter(
+        (h) => new Date(h.date).toDateString() !== targetDate.toDateString()
+      );
+      return [
+        ...filtered,
+        {
+          date: targetDate.toISOString(),
+          attended: status,
+          id: `temp-${Date.now()}`
+        }
+      ];
+    });
+
     try {
       const utcDate = new Date(
         Date.UTC(
-          selectedDate.getFullYear(),
-          selectedDate.getMonth(),
-          selectedDate.getDate()
+          targetDate.getFullYear(),
+          targetDate.getMonth(),
+          targetDate.getDate()
         )
       );
 
+      // 3. Background asynchronous server sync (without blocking the UI)
       await markAttendance(subjectId, status, utcDate);
-      const result = await api.get(`/attendance/history/${subjectId}`);
-      setHistory(result.data || []);
-      setSelectedDate(null);
       if (onUpdate) onUpdate();
     } catch (error) {
       console.error("Error marking past attendance!", error);
+      // Rollback on network failure
+      setHistory(previousHistory);
+      alert("Failed to mark attendance. Please check your connection.");
     }
   };
 
   const handleClear = async () => {
     if (!selectedDate) return;
-    try {
-      const dateStr = selectedDate.toLocaleDateString("en-CA");
-      await deleteAttendance(subjectId, dateStr);
+    const targetDate = selectedDate;
+    const previousHistory = [...history];
 
-      const result = await api.get(`/attendance/history/${subjectId}`);
-      setHistory(result.data || []);
-      setSelectedDate(null);
+    // 1. INSTANT (0ms): Close popup immediately
+    setSelectedDate(null);
+
+    // 2. INSTANT (0ms): Optimistically remove record from calendar view
+    setHistory((prev) =>
+      prev.filter(
+        (h) => new Date(h.date).toDateString() !== targetDate.toDateString()
+      )
+    );
+
+    try {
+      const dateStr = targetDate.toLocaleDateString("en-CA");
+      // 3. Background asynchronous server sync
+      await deleteAttendance(subjectId, dateStr);
       if (onUpdate) onUpdate();
     } catch (error) {
       console.error("Error clearing attendance!", error);
+      // Rollback on network failure
+      setHistory(previousHistory);
+      alert("Failed to clear attendance. Please check your connection.");
     }
   };
 

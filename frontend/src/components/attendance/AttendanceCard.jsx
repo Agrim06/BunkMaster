@@ -50,14 +50,30 @@ const AttendanceCard = ({ subject, onUpdate }) => {
 
   const statusConfig = getStatusConfig(subject.status);
 
+  // Optimistic local state overrides
+  const [optimisticDelta, setOptimisticDelta] = useState({ attended: 0, missed: 0 });
+
   const handleAttendance = async (status) => {
     if (isMarking) return;
     setIsMarking(true);
+
+    // 1. INSTANT (0ms): Optimistically bump the attended/missed counts locally
+    setOptimisticDelta((prev) => ({
+      attended: prev.attended + (status ? 1 : 0),
+      missed: prev.missed + (status ? 0 : 1),
+    }));
+
     try {
       await markAttendance(subject.subject_id, status, new Date());
       if (onUpdate) onUpdate();
     } catch (error) {
       console.error("Error marking attendance:", error);
+      // Rollback on error
+      setOptimisticDelta((prev) => ({
+        attended: prev.attended - (status ? 1 : 0),
+        missed: prev.missed - (status ? 0 : 1),
+      }));
+      alert("Failed to mark attendance. Please check your connection.");
     } finally {
       setIsMarking(false);
     }
@@ -72,6 +88,11 @@ const AttendanceCard = ({ subject, onUpdate }) => {
       console.error("Error resetting subject:", error);
     }
   };
+
+  // Reset optimistic delta when fresh subject data arrives from parent
+  useEffect(() => {
+    setOptimisticDelta({ attended: 0, missed: 0 });
+  }, [subject.attended_count, subject.missed_count]);
 
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const todayName = daysOfWeek[new Date().getDay()].toLowerCase();
@@ -88,18 +109,27 @@ const AttendanceCard = ({ subject, onUpdate }) => {
       return dayStr.startsWith(todayName) || todayName.startsWith(dayStr);
     });
 
-  const totalClasses = (subject.attended_count || 0) + (subject.missed_count || 0);
+  const attendedCount = (subject.attended_count || 0) + optimisticDelta.attended;
+  const missedCount = (subject.missed_count || 0) + optimisticDelta.missed;
+  const totalClasses = attendedCount + missedCount;
   const targetPct = subject.min_attendance || 75;
-  const currentPct = subject.attendance_percentage ?? (totalClasses > 0 ? Math.round((subject.attended_count / totalClasses) * 100) : 0);
+  const currentPct = totalClasses > 0 
+    ? Math.round((attendedCount / totalClasses) * 100) 
+    : (subject.attendance_percentage ?? 0);
+
+  // Dynamic safe bunk calculation
+  const safeBunk = currentPct >= targetPct
+    ? Math.max(0, Math.floor((100 * attendedCount - targetPct * totalClasses) / targetPct))
+    : 0;
 
   // Calculate classes needed if shortage
   const getBunkGuidance = () => {
-    if (subject.safe_bunk > 0) {
+    if (safeBunk > 0) {
       return {
         type: "safe",
         text: (
           <span>
-            You can safely bunk <strong>{subject.safe_bunk}</strong> {subject.safe_bunk === 1 ? "class" : "classes"}!
+            You can safely bunk <strong>{safeBunk}</strong> {safeBunk === 1 ? "class" : "classes"}!
           </span>
         ),
         icon: <CheckCircle2 size={14} />
@@ -117,7 +147,7 @@ const AttendanceCard = ({ subject, onUpdate }) => {
     // Shortage formula: (target * total - 100 * attended) / (100 - target)
     const needed = Math.max(
       1,
-      Math.ceil((targetPct * totalClasses - 100 * (subject.attended_count || 0)) / (100 - targetPct))
+      Math.ceil((targetPct * totalClasses - 100 * attendedCount) / (100 - targetPct))
     );
 
     return {
@@ -191,11 +221,11 @@ const AttendanceCard = ({ subject, onUpdate }) => {
       <div className="stats-row">
         <div className="stat-item">
           <span className="stat-label">Attended</span>
-          <span className="stat-value text-success">{subject.attended_count || 0}</span>
+          <span className="stat-value text-success">{attendedCount}</span>
         </div>
         <div className="stat-item">
           <span className="stat-label">Missed</span>
-          <span className="stat-value text-danger">{subject.missed_count || 0}</span>
+          <span className="stat-value text-danger">{missedCount}</span>
         </div>
         <div className="stat-item">
           <span className="stat-label">Total Held</span>
