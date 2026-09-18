@@ -135,6 +135,23 @@
   letter-spacing: 0.5px;
 }
 
+.label-with-count {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.classes-count-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary-text);
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  letter-spacing: 0.2px;
+}
+
 .form-group-field input {
   width: 100%;
   padding: 12px 14px;

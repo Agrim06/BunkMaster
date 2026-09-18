@@ -22,10 +22,12 @@ def add_subject(
     if existing:
         raise HTTPException(status_code = 400 , detail="Subject already exists")
 
+    classes_count = subject.classes_per_week if subject.classes_per_week is not None else len(subject.days)
+    
     subject_doc = {
         "user_id"  : current_user["id"],
         "name" : subject.name,
-        "classes_per_week" : subject.classes_per_week,
+        "classes_per_week" : classes_count,
         "days": subject.days,
         "min_attendance": subject.min_attendance,
         "created_at" : datetime.utcnow(),
@@ -87,12 +89,14 @@ def update_subject(
     if not existing:
         raise HTTPException(status_code =404, detail="Subject not found")
     
+    classes_count = subject_data.classes_per_week if subject_data.classes_per_week is not None else len(subject_data.days)
+
     update_data = {
         "name" : subject_data.name,
-        "classes_per_week": subject_data.classes_per_week,
-        "days":subject_data.days,
+        "classes_per_week": classes_count,
+        "days": subject_data.days,
         "min_attendance": subject_data.min_attendance,
-        "last_updated":datetime.utcnow(),
+        "last_updated": datetime.utcnow(),
     }
 
     subjects_collection.update_one(

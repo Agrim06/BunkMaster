@@ -36,7 +36,6 @@ const ALL_DAYS = [
 const Subjects = () => {
   const [subjects, setSubjects] = useState([]);
   const [name, setName] = useState("");
-  const [classesPerWeek, setClassesPerWeek] = useState("");
   const [selectedDays, setSelectedDays] = useState(["Mon", "Wed", "Fri"]);
   const [minAttendance, setMinAttendance] = useState("75");
   const [loading, setLoading] = useState(true);
@@ -81,17 +80,11 @@ const Subjects = () => {
 
     if (!name.trim()) return;
 
-    const classesInt = parseInt(classesPerWeek, 10);
-    if (isNaN(classesInt) || classesInt <= 0) {
-      alert("Please enter a valid number for classes per week.");
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       const subjectPayload = {
         name: name.trim(),
-        classes_per_week: classesInt,
+        classes_per_week: selectedDays.length > 0 ? selectedDays.length : 1,
         days: selectedDays,
         min_attendance: minAttendance ? parseInt(minAttendance, 10) : 75
       };
@@ -114,7 +107,6 @@ const Subjects = () => {
 
   const resetForm = () => {
     setName("");
-    setClassesPerWeek("");
     setSelectedDays(["Mon", "Wed", "Fri"]);
     setMinAttendance("75");
     setEditingId(null);
@@ -123,7 +115,6 @@ const Subjects = () => {
   const handleEditClick = (subject) => {
     setEditingId(subject.id || subject._id);
     setName(subject.name || "");
-    setClassesPerWeek(subject.classes_per_week ? subject.classes_per_week.toString() : "3");
     setSelectedDays(Array.isArray(subject.days) ? subject.days : []);
     setMinAttendance(subject.min_attendance ? subject.min_attendance.toString() : "75");
 
@@ -200,36 +191,26 @@ const Subjects = () => {
               />
             </div>
 
-            <div className="form-row-dual">
-              <div className="form-group-field">
-                <label>Classes per Week</label>
-                <input
-                  type="number"
-                  placeholder="e.g. 4"
-                  value={classesPerWeek}
-                  onChange={(e) => setClassesPerWeek(e.target.value)}
-                  min="1"
-                  max="20"
-                  required
-                />
-              </div>
-
-              <div className="form-group-field">
-                <label>Target Attendance (%)</label>
-                <input
-                  type="number"
-                  placeholder="75"
-                  value={minAttendance}
-                  onChange={(e) => setMinAttendance(e.target.value)}
-                  min="1"
-                  max="100"
-                />
-              </div>
+            <div className="form-group-field">
+              <label>Target Attendance (%)</label>
+              <input
+                type="number"
+                placeholder="75"
+                value={minAttendance}
+                onChange={(e) => setMinAttendance(e.target.value)}
+                min="1"
+                max="100"
+              />
             </div>
 
             {/* Schedule Day Selector */}
             <div className="form-group-field">
-              <label>Schedule Days</label>
+              <div className="label-with-count">
+                <label>Schedule Days</label>
+                <span className="classes-count-badge">
+                  Totoal weekly {selectedDays.length === 1 ? "class" : "classes"} : {selectedDays.length} 
+                </span>
+              </div>
               <div className="day-selector-pills">
                 {ALL_DAYS.map((day) => {
                   const isSelected = selectedDays.includes(day.key);
