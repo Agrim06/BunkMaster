@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "../api/axios";
 import { loginUser } from "../api/auth.api";
+import { useAuth } from "../auth/AuthContext";
 import { Mail, Lock, LogIn, AlertCircle } from "lucide-react";
 import "../styles/auth.css";
 
@@ -10,8 +11,9 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
 
-  const from = (location.state && location.state.from) || "/";
+  const from = (location.state && location.state.from?.pathname) || "/dashboard";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +39,7 @@ function Login() {
 
         const container = document.getElementById("googleSignInDiv");
         if (container) {
-          container.innerHTML = ""; // prevents duplicate button render
+          container.innerHTML = "";
           window.google.accounts.id.renderButton(container, {
             theme: "outline",
             size: "large",
@@ -68,14 +70,10 @@ function Login() {
         remember_me: rememberMe,
       });
 
-      const storage = rememberMe ? localStorage : sessionStorage;
-      storage.setItem("token", data.access_token);
-      storage.setItem("user", JSON.stringify(data.user));
-
-      window.dispatchEvent(new Event("authUserChanged"));
+      login(data.user);
       navigate(from, { replace: true });
     } catch (err) {
-      console.log(err);
+      console.error("Google login error:", err);
       setError(
         err?.response?.data?.message ||
         "Google login failed. Please try again."
@@ -104,15 +102,12 @@ function Login() {
     try {
       const data = await loginUser({ email, password, remember_me: rememberMe });
 
-      const storage = rememberMe ? localStorage : sessionStorage;
-      storage.setItem("token", data.access_token);
-      storage.setItem("user", JSON.stringify(data.user));
-
-      window.dispatchEvent(new Event("authUserChanged"));
+      login(data.user);
       navigate(from, { replace: true });
     } catch (err) {
-      console.error(err);
+      console.error("Login error:", err);
       setError(
+        err?.response?.data?.detail ||
         err?.response?.data?.message ||
         "Login failed. Please check your credentials."
       );

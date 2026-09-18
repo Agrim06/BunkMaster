@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "../api/axios";
 import { registerUser } from "../api/auth.api";
+import { useAuth } from "../auth/AuthContext";
 import { User, Mail, Lock, UserPlus, AlertCircle } from "lucide-react";
 import "../styles/auth.css";
 
@@ -15,8 +16,9 @@ const Register = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
 
-  const from = (location.state && location.state.from) || "/";
+  const from = (location.state && location.state.from?.pathname) || "/dashboard";
 
   useEffect(() => {
     let timer;
@@ -64,9 +66,7 @@ const Register = () => {
         remember_me: true
       });
 
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      window.dispatchEvent(new Event("authUserChanged"));
+      login(data.user);
       navigate(from, { replace: true });
     } catch (err) {
       console.error("Google login error:", err);
@@ -86,7 +86,10 @@ const Register = () => {
       await registerUser({ name, email, password });
       navigate("/verify-email", { state: { email } });
     } catch (error) {
-      setError("Registration failed. Email may already be in use.");
+      setError(
+        error?.response?.data?.detail ||
+        "Registration failed. Email may already be in use."
+      );
     } finally {
       setLoading(false);
     }

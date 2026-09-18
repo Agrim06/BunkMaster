@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getMe } from "../api/auth.api";
 import { getAttendanceSummary } from "../api/attendance.api";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import {
   User,
   Mail,
@@ -18,7 +19,8 @@ import "../styles/profile.css";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user: authUser, logout } = useAuth();
+  const [user, setUser] = useState(authUser);
   const [summary, setSummary] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -46,10 +48,8 @@ const Profile = () => {
     fetchData();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.dispatchEvent(new Event("authUserChanged"));
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 

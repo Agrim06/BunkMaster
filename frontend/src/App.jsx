@@ -11,6 +11,7 @@ import Subjects from "./pages/Subjects";
 import Profile from "./pages/Profile";
 import Home from "./pages/Home";
 
+import { AuthProvider } from "./auth/AuthContext";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import PublicRoute from "./auth/PublicRoute";
 import Layout from "./components/Layout";
@@ -18,113 +19,115 @@ import Layout from "./components/Layout";
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
+      <AuthProvider>
+        <Routes>
 
-        {/* Public routes */}
+          {/* Public routes */}
 
-        <Route
-          path="/"
-          element={
-            <Layout>
-              <Home />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
+          <Route
+            path="/"
+            element={
               <Layout>
-                <Login />
+                <Home />
               </Layout>
-            </PublicRoute>
-          }
-        />
+            }
+          />
 
-        <Route
-          path="/forgot-password"
-          element={
-            <PublicRoute>
-              <Layout>
-                <ForgotPassword />
-              </Layout>
-            </PublicRoute>
-          }
-        />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Layout>
+                  <Login />
+                </Layout>
+              </PublicRoute>
+            }
+          />
 
-        <Route
-          path="/reset-password"
-          element={
-            <PublicRoute>
-              <Layout>
-                <ResetPassword />
-              </Layout>
-            </PublicRoute>
-          }
-        />
+          <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <Layout>
+                  <ForgotPassword />
+                </Layout>
+              </PublicRoute>
+            }
+          />
 
-        <Route
-          path="/register"
-          element={
-            <PublicRoute>
-              <Layout>
-                <Register />
-              </Layout>
-            </PublicRoute>
-          }
-        />
+          <Route
+            path="/reset-password"
+            element={
+              <PublicRoute>
+                <Layout>
+                  <ResetPassword />
+                </Layout>
+              </PublicRoute>
+            }
+          />
 
-        <Route
-          path="/verify-email"
-          element={
-            <PublicRoute>
-              <Layout>
-                <VerifyEmail />
-              </Layout>
-            </PublicRoute>
-          }
-        />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <Layout>
+                  <Register />
+                </Layout>
+              </PublicRoute>
+            }
+          />
 
-        {/* Protected routes */}
+          <Route
+            path="/verify-email"
+            element={
+              <PublicRoute>
+                <Layout>
+                  <VerifyEmail />
+                </Layout>
+              </PublicRoute>
+            }
+          />
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Dashboard />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected routes */}
 
-        <Route
-          path="/subjects"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Subjects />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Profile />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/subjects"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Subjects />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Catch-all route to redirect back to home/dashboard */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Profile />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-      </Routes>
+          {/* Catch-all route to redirect back to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

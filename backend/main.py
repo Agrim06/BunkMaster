@@ -1,10 +1,10 @@
-from fastapi import FastAPI, HTTPException , Depends , Request, BackgroundTasks, Form
+from fastapi import FastAPI, HTTPException, Depends, Request, Response, BackgroundTasks, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from datetime import datetime , timedelta
+from datetime import datetime, timedelta
 from database import users_collection, otp_collection
 from schemas.user import (
     UserRegister, UserLogin, TokenResponse, UserResponse, 
-    GoogleLoginRequest, ForgotPasswordRequest, ResetPasswordRequest
+    GoogleLoginRequest, ForgotPasswordRequest, ResetPasswordRequest, OTPVerify
 )
 from auth import hash_password, verify_password, create_access_token, decode_token
 from models import user_model
@@ -18,7 +18,6 @@ from otp import generate_otp
 from smtp import send_otp_email
 import os
 
-
 app = FastAPI(title="BunkTracker API")
 
 @app.middleware("http")
@@ -28,16 +27,16 @@ async def add_coop_header(request: Request, call_next):
         response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
         return response
     except Exception as e:
-        # Ensure CORS or other middlewares can still handle exceptions if needed
         raise e
 
-# CORS must be the OUTERMOST middleware to ensure it catches all responses, 
-# including those from other middlewares or exceptions.
+# CORS configuration supporting credentials (cookies)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
+        "http://127.0.0.1:5173",
         "http://localhost:3000",
+        "http://127.0.0.1:3000",
         "https://bunk-master-2026.vercel.app",
         "https://bunkmasterapp.vercel.app",
     ],
@@ -47,19 +46,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login", auto_error=False)
+
+def _is_production():
+    return os.getenv("ENVIRONMENT", "").lower() == "production"
 
 @app.get("/ping")
 def ping():
     return {"status": "ok", "message": "BunkTracker is awake!"}
 
 @app.post("/register")
-def register(user : UserRegister, background_tasks: BackgroundTasks):  
-    if users_collection.find_one({"email" : user.email}):
-        raise HTTPException(status_code=401 , detail="Email already registered!")
+def register(user: UserRegister, background_tasks: BackgroundTasks):  
+    if users_collection.find_one({"email": user.email}):
+        raise HTTPException(status_code=401, detail="Email already registered!")
 
     otp = generate_otp()
-
     expiry = datetime.utcnow() + timedelta(minutes=5)
 
     otp_record = {
@@ -74,8 +75,6 @@ def register(user : UserRegister, background_tasks: BackgroundTasks):
         upsert=True
     )
 
-    # In production, sending synchronously helps surface SMTP failures
-    # (many hosts block outbound SMTP or env vars may be missing).
     smtp_mode = (os.getenv("SMTP_SEND_MODE") or "").strip().lower()
     if smtp_mode == "sync":
         try:
@@ -90,19 +89,23 @@ def register(user : UserRegister, background_tasks: BackgroundTasks):
         background_tasks.add_task(send_otp_email, user.email, otp)
 
     new_user = {
-        "name" : user.name,
-        "email" : user.email,
-        "password" : hash_password(user.password),
-        "created_at" : datetime.utcnow(),
+        "name": user.name,
+        "email": user.email,
+        "password": hash_password(user.password),
+        "created_at": datetime.utcnow(),
         "is_verified": False
     }
 
     users_collection.insert_one(new_user)
-    return { "message" : "OTP sent successfully. Please check your email to verify your account."}    
+    return {"message": "OTP sent successfully. Please check your email to verify your account."}    
 
 
 @app.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), remember_me: bool = Form(False)):
+def login(
+    response: Response,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    remember_me: bool = Form(False)
+):
     db_user = users_collection.find_one({"email": form_data.username})
 
     if not db_user or not verify_password(form_data.password, db_user["password"]):
@@ -113,7 +116,28 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), remember_me: bool = 
     else:
         expires = timedelta(minutes=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")))
 
-    token = create_access_token({"sub": db_user["email"]}, expires_delta=expires)
+    created_at_val = db_user.get("created_at")
+    created_at_str = created_at_val.isoformat() if isinstance(created_at_val, datetime) else str(created_at_val or "")
+
+    # Embed user metadata into JWT for 0ms in-memory authentication on subsequent calls
+    token = create_access_token({
+        "sub": db_user["email"],
+        "id": str(db_user["_id"]),
+        "name": db_user.get("name", ""),
+        "created_at": created_at_str
+    }, expires_delta=expires)
+
+    # Set secure HttpOnly cookie
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        max_age=int(expires.total_seconds()),
+        secure=_is_production(),
+        samesite="lax",
+        path="/"
+    )
+
     return {
         "access_token": token,
         "token_type": "bearer",
@@ -123,65 +147,92 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), remember_me: bool = 
         }
     }
 
+@app.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+        samesite="lax",
+        secure=_is_production()
+    )
+    return {"message": "Logged out successfully"}
+
 @app.get("/me", response_model=UserResponse)
 def get_profile(current_user: dict = Depends(get_current_user)):
     return current_user
-
 
 app.include_router(subjects_router)
 app.include_router(attendance_router)
 
 @app.post("/google-login")
-def google_login(request: GoogleLoginRequest):
+def google_login(request: GoogleLoginRequest, response: Response):
     try:
         id_info = id_token.verify_oauth2_token(
             request.idToken,
             requests.Request(),
             os.getenv("VITE_GOOGLE_CLIENT_ID"),
-            clock_skew_in_seconds = 10
+            clock_skew_in_seconds=10
         )
     
         email = id_info.get("email")
         name = id_info.get("name")
 
         if not email:
-            raise HTTPException(status_code= 400, detail="Invalid Google Token")
+            raise HTTPException(status_code=400, detail="Invalid Google Token")
         
-        user = users_collection.find_one({"email" : email})
+        user = users_collection.find_one({"email": email})
 
         if not user:
             new_user = {
-                "name" : name,
-                "email" : email,
-                "password" : "",
-                "created_at" : datetime.utcnow(),
+                "name": name,
+                "email": email,
+                "password": "",
+                "created_at": datetime.utcnow(),
                 "is_verified": True
             }
-            users_collection.insert_one(new_user)
+            res = users_collection.insert_one(new_user)
+            user = new_user
+            user["_id"] = res.inserted_id
     
         if request.remember_me:
             expires = timedelta(days=30)
         else:
-            expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            expires = timedelta(minutes=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")))
+
+        created_at_val = user.get("created_at")
+        created_at_str = created_at_val.isoformat() if isinstance(created_at_val, datetime) else str(created_at_val or "")
     
-        token = create_access_token({"sub" : email}, expires_delta=expires)
+        token = create_access_token({
+            "sub": email,
+            "id": str(user["_id"]),
+            "name": user.get("name", name),
+            "created_at": created_at_str
+        }, expires_delta=expires)
+
+        # Set secure HttpOnly cookie
+        response.set_cookie(
+            key="access_token",
+            value=token,
+            httponly=True,
+            max_age=int(expires.total_seconds()),
+            secure=_is_production(),
+            samesite="lax",
+            path="/"
+        )
 
         return {
-            "access_token":token,
-            "token_type" : "bearer",
-            "user":{
-                "name":name,
+            "access_token": token,
+            "token_type": "bearer",
+            "user": {
+                "name": name,
                 "email": email
             }
         }
-    except ValueError as e:
-        raise HTTPException(status_code= 401 , detail="Invalid Google Token")
-
-from schemas.user import OTPVerify
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid Google Token")
 
 @app.post("/verify-otp")
 def verify_otp(data: OTPVerify):
-
     otp_record = otp_collection.find_one({
         "email": data.email.strip(),
         "otp": data.otp.strip()
@@ -206,8 +257,6 @@ def verify_otp(data: OTPVerify):
 def forgot_password(data: ForgotPasswordRequest, background_tasks: BackgroundTasks):
     user = users_collection.find_one({"email": data.email})
     if not user:
-        # For security, we might not want to disclose if the email exists, 
-        # but for this app's UX, we'll return a message suggesting it was sent if found.
         return {"message": "If an account with that email exists, an OTP has been sent."}
 
     otp = generate_otp()
@@ -247,7 +296,6 @@ def reset_password(data: ResetPasswordRequest):
     if otp_record["expires_at"] < datetime.utcnow():
         raise HTTPException(status_code=400, detail="OTP expired")
 
-    # Update user password
     result = users_collection.update_one(
         {"email": data.email},
         {"$set": {"password": hash_password(data.new_password)}}
@@ -256,7 +304,6 @@ def reset_password(data: ResetPasswordRequest):
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Clear OTP after successful reset
     otp_collection.delete_one({"_id": otp_record["_id"]})
 
     return {"message": "Password reset successfully"}

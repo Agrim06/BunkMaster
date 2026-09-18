@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { getMe } from "../../api/auth.api";
-import { LayoutDashboard, BookOpen, User, LogOut, ChevronDown, Sparkles, LogIn, UserPlus } from "lucide-react";
+import { useAuth } from "../../auth/AuthContext";
+import { LayoutDashboard, BookOpen, User, LogOut, ChevronDown, LogIn, UserPlus } from "lucide-react";
 import "../../styles/layout.css";
 import logo from "../../images/logo.svg";
 
@@ -9,23 +9,12 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const profileRef = useRef(null);
+  const { user, isAuthenticated, logout } = useAuth();
 
-  const isLoggedIn = !!localStorage.getItem("token");
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      getMe()
-        .then((data) => setUser(data))
-        .catch((err) => console.error("Error fetching user for navbar:", err));
-    }
-  }, [isLoggedIn]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.dispatchEvent(new Event("authUserChanged"));
+  const handleLogout = async () => {
+    setIsProfileOpen(false);
+    await logout();
     navigate("/login");
   };
 
@@ -57,7 +46,7 @@ const Navbar = () => {
       </Link>
 
       <div className="navbar-links">
-        {isLoggedIn ? (
+        {isAuthenticated ? (
           <>
             <Link
               to="/dashboard"

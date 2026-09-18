@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import {
   ShieldCheck,
   Zap,
@@ -12,7 +13,7 @@ import {
 import "../styles/home.css";
 
 const Home = () => {
-  const isLoggedIn = !!localStorage.getItem("token");
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="home-container">
@@ -33,7 +34,7 @@ const Home = () => {
           </p>
 
           <div className="hero-actions">
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <Link to="/dashboard" className="btn-hero-primary">
                 <span>Go to Dashboard</span>
                 <ArrowRight size={18} />

@@ -1,6 +1,6 @@
 import api from "./axios";
 
-//POST /login
+// POST /login
 export const loginUser = async (credentials) => {
     const formData = new URLSearchParams();
     formData.append("username", credentials.email);
@@ -15,31 +15,37 @@ export const loginUser = async (credentials) => {
     return response.data;
 };
 
-//POST /register
+// POST /logout
+export const logoutUser = async () => {
+    const response = await api.post("/logout");
+    return response.data;
+};
+
+// POST /register
 export const registerUser = async (data) => {
     const response = await api.post("/register", data);
     return response.data;
 };
 
-//POST /verify-otp
+// POST /verify-otp
 export const verifyOtp = async (data) => {
     const response = await api.post("/verify-otp", data);
     return response.data;
 };
 
-//GET /me
+// GET /me
 export const getMe = async () => {
     const response = await api.get("/me");
     return response.data;
 };
 
-//POST /forgot-password
+// POST /forgot-password
 export const requestPasswordReset = async (email) => {
     const response = await api.post("/forgot-password", { email });
     return response.data;
 };
 
-//POST /reset-password
+// POST /reset-password
 export const resetPassword = async (data) => {
     const response = await api.post("/reset-password", data);
     return response.data;

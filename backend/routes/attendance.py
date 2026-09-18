@@ -160,32 +160,39 @@ def delete_attendance(
     
     return {"message": "Attendance cleared for the day"}
 
-@router.get("/summary" )
-def attendance_summary( current_user: dict = Depends(get_current_user)):
-    subjects = subjects_collection.find({"user_id" : current_user["id"]})
+@router.get("/summary")
+def attendance_summary(current_user: dict = Depends(get_current_user)):
+    user_id = current_user["id"]
+    subjects = list(subjects_collection.find({"user_id": user_id}))
+
+    if not subjects:
+        return []
+
+    # Batch query all attendance records for this user (1 round-trip total instead of N)
+    attendances = {
+        att["subject_id"]: att
+        for att in attendance_collection.find({"user_id": user_id})
+    }
 
     summary = []
-
     for s in subjects:
-        attendance = attendance_collection.find_one({
-            "user_id"  : current_user["id"],
-            "subject_id" : str(s["_id"])
-        })
+        sub_id = str(s["_id"])
+        attendance = attendances.get(sub_id)
 
         if not attendance:
             attended = 0
             missed = 0
         else:
-            attended = attendance.get("attended_count" , 0)
+            attended = attendance.get("attended_count", 0)
             missed = attendance.get("missed_count", 0)
-    
+
         total = attended + missed
-        percentage = calculate_attendance_percentage(attended , total)
+        percentage = calculate_attendance_percentage(attended, total)
 
         target_attendance = s.get("min_attendance") or current_user.get("min_attendance", 75)
         min_percentage_decimal = target_attendance / 100.0
 
-        safe_bunk = calculate_safe_bunk(attended , total , min_percentage_decimal)
+        safe_bunk = calculate_safe_bunk(attended, total, min_percentage_decimal)
 
         status = "SAFE"
 
@@ -195,14 +202,14 @@ def attendance_summary( current_user: dict = Depends(get_current_user)):
             status = "BORDERLINE"
 
         summary.append({
-            "subject_id": str(s["_id"]),
+            "subject_id": sub_id,
             "subject_name": s["name"],
             "attended_count": attended,
             "missed_count": missed,
-            "attendance_percentage": round(percentage) ,
-            "safe_bunk" : safe_bunk  ,
-            "status" : status,
-            "min_attendance" : target_attendance,
+            "attendance_percentage": round(percentage),
+            "safe_bunk": safe_bunk,
+            "status": status,
+            "min_attendance": target_attendance,
             "days": s.get("days", [])
         })
 
