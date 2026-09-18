@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 
 const AttendanceCard = ({ subject, onUpdate }) => {
+  if (!subject) return null;
+
   const [showCalendar, setShowCalendar] = useState(false);
   const [isMarking, setIsMarking] = useState(false);
 
@@ -48,10 +50,15 @@ const AttendanceCard = ({ subject, onUpdate }) => {
     }
   };
 
-  const statusConfig = getStatusConfig(subject.status);
-
   // Optimistic local state overrides
   const [optimisticDelta, setOptimisticDelta] = useState({ attended: 0, missed: 0 });
+
+  const handleOptimisticCalendarChange = ({ attendedDelta, missedDelta }) => {
+    setOptimisticDelta((prev) => ({
+      attended: prev.attended + attendedDelta,
+      missed: prev.missed + missedDelta,
+    }));
+  };
 
   const handleAttendance = async (status) => {
     if (isMarking) return;
@@ -160,6 +167,16 @@ const AttendanceCard = ({ subject, onUpdate }) => {
       icon: <TrendingUp size={14} />
     };
   };
+
+  // Dynamic status computation
+  const getDynamicStatus = () => {
+    if (totalClasses === 0) return subject.status || "SAFE";
+    if (currentPct < targetPct) return "SHORTAGE";
+    if (safeBunk === 0) return "BORDERLINE";
+    return "SAFE";
+  };
+
+  const statusConfig = getStatusConfig(getDynamicStatus());
 
   const guidance = getBunkGuidance();
 
@@ -283,6 +300,7 @@ const AttendanceCard = ({ subject, onUpdate }) => {
           subjectName={subject.subject_name}
           onClose={() => setShowCalendar(false)}
           onUpdate={onUpdate}
+          onOptimisticChange={handleOptimisticCalendarChange}
         />
       )}
     </div>

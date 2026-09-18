@@ -6,7 +6,7 @@ import { Check, X, Trash2, Calendar as CalendarIcon, XCircle } from "lucide-reac
 import "react-calendar/dist/Calendar.css";
 import "../../styles/calendar.css";
 
-const CalendarView = ({ subjectId, subjectName, onClose, onUpdate }) => {
+const CalendarView = ({ subjectId, subjectName, onClose, onUpdate, onOptimisticChange }) => {
   const [history, setHistory] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [loadingHistory, setLoadingHistory] = useState(true);
@@ -44,6 +44,22 @@ const CalendarView = ({ subjectId, subjectName, onClose, onUpdate }) => {
     const targetDate = selectedDate;
     const previousHistory = [...history];
 
+    // Calculate delta for the card
+    const existingLog = history.find(
+      (h) => new Date(h.date).toDateString() === targetDate.toDateString()
+    );
+
+    let attendedDelta = 0;
+    let missedDelta = 0;
+
+    if (!existingLog) {
+      attendedDelta = status ? 1 : 0;
+      missedDelta = status ? 0 : 1;
+    } else if (existingLog.attended !== status) {
+      attendedDelta = status ? 1 : -1;
+      missedDelta = status ? -1 : 1;
+    }
+
     // 1. INSTANT (0ms): Close popup immediately
     setSelectedDate(null);
 
@@ -62,6 +78,11 @@ const CalendarView = ({ subjectId, subjectName, onClose, onUpdate }) => {
       ];
     });
 
+    // 3. INSTANT (0ms): Optimistically update AttendanceCard stats
+    if (onOptimisticChange && (attendedDelta !== 0 || missedDelta !== 0)) {
+      onOptimisticChange({ attendedDelta, missedDelta });
+    }
+
     try {
       const utcDate = new Date(
         Date.UTC(
@@ -71,13 +92,16 @@ const CalendarView = ({ subjectId, subjectName, onClose, onUpdate }) => {
         )
       );
 
-      // 3. Background asynchronous server sync (without blocking the UI)
+      // 4. Background asynchronous server sync (without blocking the UI)
       await markAttendance(subjectId, status, utcDate);
       if (onUpdate) onUpdate();
     } catch (error) {
       console.error("Error marking past attendance!", error);
       // Rollback on network failure
       setHistory(previousHistory);
+      if (onOptimisticChange && (attendedDelta !== 0 || missedDelta !== 0)) {
+        onOptimisticChange({ attendedDelta: -attendedDelta, missedDelta: -missedDelta });
+      }
       alert("Failed to mark attendance. Please check your connection.");
     }
   };
@@ -86,6 +110,17 @@ const CalendarView = ({ subjectId, subjectName, onClose, onUpdate }) => {
     if (!selectedDate) return;
     const targetDate = selectedDate;
     const previousHistory = [...history];
+
+    const existingLog = history.find(
+      (h) => new Date(h.date).toDateString() !== targetDate.toDateString()
+    );
+
+    let attendedDelta = 0;
+    let missedDelta = 0;
+    if (existingLog) {
+      attendedDelta = existingLog.attended ? -1 : 0;
+      missedDelta = existingLog.attended ? 0 : -1;
+    }
 
     // 1. INSTANT (0ms): Close popup immediately
     setSelectedDate(null);
@@ -97,15 +132,23 @@ const CalendarView = ({ subjectId, subjectName, onClose, onUpdate }) => {
       )
     );
 
+    // 3. INSTANT (0ms): Optimistically update AttendanceCard stats
+    if (onOptimisticChange && (attendedDelta !== 0 || missedDelta !== 0)) {
+      onOptimisticChange({ attendedDelta, missedDelta });
+    }
+
     try {
       const dateStr = targetDate.toLocaleDateString("en-CA");
-      // 3. Background asynchronous server sync
+      // 4. Background asynchronous server sync
       await deleteAttendance(subjectId, dateStr);
       if (onUpdate) onUpdate();
     } catch (error) {
       console.error("Error clearing attendance!", error);
       // Rollback on network failure
       setHistory(previousHistory);
+      if (onOptimisticChange && (attendedDelta !== 0 || missedDelta !== 0)) {
+        onOptimisticChange({ attendedDelta: -attendedDelta, missedDelta: -missedDelta });
+      }
       alert("Failed to clear attendance. Please check your connection.");
     }
   };
