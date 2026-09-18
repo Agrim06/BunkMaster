@@ -208,7 +208,7 @@ const Subjects = () => {
               <div className="label-with-count">
                 <label>Schedule Days</label>
                 <span className="classes-count-badge">
-                  Totoal weekly {selectedDays.length === 1 ? "class" : "classes"} : {selectedDays.length} 
+                  Total weekly {selectedDays.length === 1 ? "class" : "classes"} : {selectedDays.length} 
                 </span>
               </div>
               <div className="day-selector-pills">
