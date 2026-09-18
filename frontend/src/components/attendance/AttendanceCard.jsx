@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { markAttendance } from "../../api/attendance.api";
 import { resetSubject } from "../../api/subject.api";
 import CalendarView from "./CalendarView";
