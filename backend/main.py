@@ -51,6 +51,37 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login", auto_error=False)
 def _is_production():
     return os.getenv("ENVIRONMENT", "").lower() == "production"
 
+def set_auth_cookie(response: Response, token: str, max_age: int, request: Request = None):
+    origin = (request.headers.get("origin") or "") if request else ""
+    is_https = origin.startswith("https://") or _is_production()
+
+    samesite_val = "none" if is_https else "lax"
+    secure_val = True if is_https else False
+
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        max_age=max_age,
+        secure=secure_val,
+        samesite=samesite_val,
+        path="/"
+    )
+
+def clear_auth_cookie(response: Response, request: Request = None):
+    origin = (request.headers.get("origin") or "") if request else ""
+    is_https = origin.startswith("https://") or _is_production()
+
+    samesite_val = "none" if is_https else "lax"
+    secure_val = True if is_https else False
+
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+        samesite=samesite_val,
+        secure=secure_val
+    )
+
 @app.get("/ping")
 def ping():
     return {"status": "ok", "message": "BunkTracker is awake!"}
@@ -102,6 +133,7 @@ def register(user: UserRegister, background_tasks: BackgroundTasks):
 
 @app.post("/login")
 def login(
+    request: Request,
     response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
     remember_me: bool = Form(False)
@@ -119,7 +151,7 @@ def login(
     created_at_val = db_user.get("created_at")
     created_at_str = created_at_val.isoformat() if isinstance(created_at_val, datetime) else str(created_at_val or "")
 
-    # Embed user metadata into JWT for 0ms in-memory authentication on subsequent calls
+    # Embed user metadata into JWT for 0ms in-memory authentication
     token = create_access_token({
         "sub": db_user["email"],
         "id": str(db_user["_id"]),
@@ -127,16 +159,8 @@ def login(
         "created_at": created_at_str
     }, expires_delta=expires)
 
-    # Set secure HttpOnly cookie
-    response.set_cookie(
-        key="access_token",
-        value=token,
-        httponly=True,
-        max_age=int(expires.total_seconds()),
-        secure=_is_production(),
-        samesite="lax",
-        path="/"
-    )
+    # Set secure HttpOnly cookie (SameSite=none & Secure for cross-origin HTTPS in production)
+    set_auth_cookie(response, token, int(expires.total_seconds()), request)
 
     return {
         "access_token": token,
@@ -148,13 +172,8 @@ def login(
     }
 
 @app.post("/logout")
-def logout(response: Response):
-    response.delete_cookie(
-        key="access_token",
-        path="/",
-        samesite="lax",
-        secure=_is_production()
-    )
+def logout(request: Request, response: Response):
+    clear_auth_cookie(response, request)
     return {"message": "Logged out successfully"}
 
 @app.get("/me", response_model=UserResponse)
@@ -165,10 +184,10 @@ app.include_router(subjects_router)
 app.include_router(attendance_router)
 
 @app.post("/google-login")
-def google_login(request: GoogleLoginRequest, response: Response):
+def google_login(request_data: GoogleLoginRequest, request: Request, response: Response):
     try:
         id_info = id_token.verify_oauth2_token(
-            request.idToken,
+            request_data.idToken,
             requests.Request(),
             os.getenv("VITE_GOOGLE_CLIENT_ID"),
             clock_skew_in_seconds=10
@@ -194,7 +213,7 @@ def google_login(request: GoogleLoginRequest, response: Response):
             user = new_user
             user["_id"] = res.inserted_id
     
-        if request.remember_me:
+        if request_data.remember_me:
             expires = timedelta(days=30)
         else:
             expires = timedelta(minutes=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")))
@@ -210,15 +229,7 @@ def google_login(request: GoogleLoginRequest, response: Response):
         }, expires_delta=expires)
 
         # Set secure HttpOnly cookie
-        response.set_cookie(
-            key="access_token",
-            value=token,
-            httponly=True,
-            max_age=int(expires.total_seconds()),
-            secure=_is_production(),
-            samesite="lax",
-            path="/"
-        )
+        set_auth_cookie(response, token, int(expires.total_seconds()), request)
 
         return {
             "access_token": token,

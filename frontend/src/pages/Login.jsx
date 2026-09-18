@@ -70,6 +70,14 @@ function Login() {
         remember_me: rememberMe,
       });
 
+      const storage = rememberMe ? localStorage : sessionStorage;
+      if (data.access_token) {
+        storage.setItem("token", data.access_token);
+      }
+      if (data.user) {
+        storage.setItem("user", JSON.stringify(data.user));
+      }
+
       login(data.user);
       navigate(from, { replace: true });
     } catch (err) {
@@ -101,6 +109,14 @@ function Login() {
 
     try {
       const data = await loginUser({ email, password, remember_me: rememberMe });
+
+      const storage = rememberMe ? localStorage : sessionStorage;
+      if (data.access_token) {
+        storage.setItem("token", data.access_token);
+      }
+      if (data.user) {
+        storage.setItem("user", JSON.stringify(data.user));
+      }
 
       login(data.user);
       navigate(from, { replace: true });

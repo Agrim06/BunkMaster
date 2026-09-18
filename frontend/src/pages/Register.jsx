@@ -66,6 +66,13 @@ const Register = () => {
         remember_me: true
       });
 
+      if (data.access_token) {
+        localStorage.setItem("token", data.access_token);
+      }
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
       login(data.user);
       navigate(from, { replace: true });
     } catch (err) {
