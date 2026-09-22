@@ -520,6 +520,13 @@
   border: 1px solid var(--success-border);
 }
 
+.btn-attend.active {
+  background: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+}
+
 .btn-attend:hover:not(:disabled) {
   background: var(--success);
   color: #000;
@@ -531,6 +538,13 @@
   background: var(--danger-subtle);
   color: var(--danger-text);
   border: 1px solid var(--danger-border);
+}
+
+.btn-miss.active {
+  background: rgba(244, 63, 94, 0.25);
+  color: #fb7185;
+  border-color: rgba(244, 63, 94, 0.6);
+  box-shadow: 0 0 14px rgba(244, 63, 94, 0.35);
 }
 
 .btn-miss:hover:not(:disabled) {

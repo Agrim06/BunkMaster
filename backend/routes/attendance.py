@@ -174,6 +174,17 @@ def attendance_summary(current_user: dict = Depends(get_current_user)):
         for att in attendance_collection.find({"user_id": user_id})
     }
 
+    # Batch query today's logs to know if today is already logged (Present/Absent/None)
+    start_of_today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    end_of_today = datetime.utcnow().replace(hour=23, minute=59, second=59, microsecond=999999)
+    today_logs = {
+        log["subject_id"]: log["attended"]
+        for log in attendance_logs_collection.find({
+            "user_id": user_id,
+            "timestamp": {"$gte": start_of_today, "$lte": end_of_today}
+        })
+    }
+
     summary = []
     for s in subjects:
         sub_id = str(s["_id"])
@@ -210,7 +221,8 @@ def attendance_summary(current_user: dict = Depends(get_current_user)):
             "safe_bunk": safe_bunk,
             "status": status,
             "min_attendance": target_attendance,
-            "days": s.get("days", [])
+            "days": s.get("days", []),
+            "today_status": today_logs.get(sub_id, None)
         })
 
     return summary

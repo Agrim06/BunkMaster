@@ -50,6 +50,9 @@ const AttendanceCard = ({ subject, onUpdate }) => {
     }
   };
 
+  // Track today's marked status (null = unrecorded, true = present, false = absent)
+  const [todayStatus, setTodayStatus] = useState(subject.today_status ?? null);
+
   // Optimistic local state overrides
   const [optimisticDelta, setOptimisticDelta] = useState({ attended: 0, missed: 0 });
 
@@ -62,12 +65,39 @@ const AttendanceCard = ({ subject, onUpdate }) => {
 
   const handleAttendance = async (status) => {
     if (isMarking) return;
+
+    // Prevent repeated clicks if already marked with this exact status today (no arcade counter behavior!)
+    if (todayStatus === status) {
+      return;
+    }
+
     setIsMarking(true);
 
-    // 1. INSTANT (0ms): Optimistically bump the attended/missed counts locally
+    // Compute accurate 1-record-per-day delta
+    let deltaAttended = 0;
+    let deltaMissed = 0;
+
+    if (todayStatus === null) {
+      // First time logging today
+      deltaAttended = status ? 1 : 0;
+      deltaMissed = status ? 0 : 1;
+    } else if (todayStatus === true && status === false) {
+      // Changing from Present to Absent
+      deltaAttended = -1;
+      deltaMissed = 1;
+    } else if (todayStatus === false && status === true) {
+      // Changing from Absent to Present
+      deltaAttended = 1;
+      deltaMissed = -1;
+    }
+
+    const prevTodayStatus = todayStatus;
+    setTodayStatus(status);
+
+    // 1. INSTANT (0ms): Optimistically update counts and percentages locally
     setOptimisticDelta((prev) => ({
-      attended: prev.attended + (status ? 1 : 0),
-      missed: prev.missed + (status ? 0 : 1),
+      attended: prev.attended + deltaAttended,
+      missed: prev.missed + deltaMissed,
     }));
 
     try {
@@ -76,9 +106,10 @@ const AttendanceCard = ({ subject, onUpdate }) => {
     } catch (error) {
       console.error("Error marking attendance:", error);
       // Rollback on error
+      setTodayStatus(prevTodayStatus);
       setOptimisticDelta((prev) => ({
-        attended: prev.attended - (status ? 1 : 0),
-        missed: prev.missed - (status ? 0 : 1),
+        attended: prev.attended - deltaAttended,
+        missed: prev.missed - deltaMissed,
       }));
       alert("Failed to mark attendance. Please check your connection.");
     } finally {
@@ -90,16 +121,18 @@ const AttendanceCard = ({ subject, onUpdate }) => {
     if (!window.confirm(`Reset all attendance for "${subject.subject_name}"? This cannot be undone.`)) return;
     try {
       await resetSubject(subject.subject_id);
+      setTodayStatus(null);
       if (onUpdate) onUpdate();
     } catch (error) {
       console.error("Error resetting subject:", error);
     }
   };
 
-  // Reset optimistic delta when fresh subject data arrives from parent
+  // Reset optimistic delta and sync todayStatus when fresh subject data arrives from parent
   useEffect(() => {
+    setTodayStatus(subject.today_status ?? null);
     setOptimisticDelta({ attended: 0, missed: 0 });
-  }, [subject.attended_count, subject.missed_count]);
+  }, [subject.attended_count, subject.missed_count, subject.today_status]);
 
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const todayName = daysOfWeek[new Date().getDay()].toLowerCase();
@@ -268,21 +301,23 @@ const AttendanceCard = ({ subject, onUpdate }) => {
       {/* Action Buttons */}
       <div className="action-buttons">
         <button
-          className="btn-attend"
+          className={`btn-attend ${todayStatus === true ? "active" : ""}`}
           onClick={() => handleAttendance(true)}
           disabled={isMarking}
+          title={todayStatus === true ? "Marked Present for today" : "Mark Present for today"}
         >
           <Check size={16} />
-          <span>Present</span>
+          <span>{todayStatus === true ? "Present ✓" : "Present"}</span>
         </button>
 
         <button
-          className="btn-miss"
+          className={`btn-miss ${todayStatus === false ? "active" : ""}`}
           onClick={() => handleAttendance(false)}
           disabled={isMarking}
+          title={todayStatus === false ? "Marked Absent for today" : "Mark Absent for today"}
         >
           <X size={16} />
-          <span>Absent</span>
+          <span>{todayStatus === false ? "Absent ✗" : "Absent"}</span>
         </button>
 
         <button
