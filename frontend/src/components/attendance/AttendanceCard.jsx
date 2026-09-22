@@ -307,7 +307,7 @@ const AttendanceCard = ({ subject, onUpdate }) => {
           title={todayStatus === true ? "Marked Present for today" : "Mark Present for today"}
         >
           <Check size={16} />
-          <span>{todayStatus === true ? "Present ✓" : "Present"}</span>
+          <span>{todayStatus === true ? "Present" : "Present"}</span>
         </button>
 
         <button
@@ -317,7 +317,7 @@ const AttendanceCard = ({ subject, onUpdate }) => {
           title={todayStatus === false ? "Marked Absent for today" : "Mark Absent for today"}
         >
           <X size={16} />
-          <span>{todayStatus === false ? "Absent ✗" : "Absent"}</span>
+          <span>{todayStatus === false ? "Absent" : "Absent"}</span>
         </button>
 
         <button
